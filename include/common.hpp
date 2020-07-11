@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include "Benchmark.hpp"
 #include "Logger.hpp"
-
+#include <assert.h>
 
 #define PUT_BENCHMARK(NAME) {#NAME, std::make_shared<NAME>()}
 
