@@ -14,7 +14,7 @@ void SecondBenchmark::RunParallel() {
         //#pragma omp critical
         {
             zz+=i;
-            printf("Thread %d reporting\n", threadID*i);
+            //printf("Thread %d reporting\n", threadID*i);
         }
     }
 

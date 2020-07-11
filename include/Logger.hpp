@@ -31,13 +31,18 @@ class LoggerClass {
                 stream << ";";
             return *this;
         }
+
         ~LoggerClass() {
-            stream << "\n";
+            stream << std::endl;
         }
 
         static LoggerClass getExcelLog(std::ostream& s){
             return LoggerClass(LogLevel::EXCEL, s);
         }
+        void newLine() {
+            stream << std::endl;
+        }
+
     private:
         inline std::string getHeader(LogLevel loglvl) {
             static std::vector<std::string> lvl_text = {"INFO", "WARN", "ERROR"};
@@ -52,8 +57,8 @@ class LoggerClass {
 // }
 
 #define INFO LoggerClass(Logger::INFO, std::cout)
-#define WARN LoggerClass(Logger::INFO, std::cout)
-#define ERROR LoggerClass(Logger::INFO, std::cout)
+#define WARN LoggerClass(Logger::WARNING, std::cout)
+#define ERROR LoggerClass(Logger::ERROR, std::cout)
 #define EXCEL(fstream) LoggerClass::getExcelLog(fstream)
 }
 
