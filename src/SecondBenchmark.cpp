@@ -1,7 +1,6 @@
 #include "SecondBenchmark.hpp"
 #include <iostream>
 #include <omp.h>
-#include "common.hpp"
 
 void SecondBenchmark::RunParallel() {
     int i;
@@ -24,6 +23,6 @@ void SecondBenchmark::RunParallel() {
 void SecondBenchmark::RunSerial() {
 
 }
-void SecondBenchmark::Init() {
-    Logger::INFO << "init second";
+void SecondBenchmark::Init(Logger::LoggerClass* file) {
+    this->file = file;
 }

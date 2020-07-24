@@ -25,7 +25,6 @@ int main(int argc, char *argv[]){
       benchmarksToRun = AllBenchmarks;
    }
 
-   BenchEngine::Configure();
    BenchEngine::Start(benchmarksToRun);
 
    return 0;
