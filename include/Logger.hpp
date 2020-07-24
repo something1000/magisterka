@@ -1,9 +1,8 @@
 #ifndef _LOGGER_HPP
 #define _LOGGER_HPP
-#include "common.hpp"
 #include <vector>
+#include <iostream>
 
-//Logger::INFO
 namespace Logger{
 
 enum LogLevel {
@@ -61,7 +60,6 @@ class LoggerClass {
 #define ERROR LoggerClass(Logger::ERROR, std::cout)
 #define EXCEL(fstream) LoggerClass::getExcelLog(fstream)
 }
-
 
 
 #endif

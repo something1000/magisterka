@@ -1,28 +1,30 @@
 #include "ForLoopBenchmark.hpp"
 #include <iostream>
 #include <omp.h>
-#include "common.hpp"
 #include <cstdlib>
 #include <thread>
 void ForLoopBenchmark::RunParallel() {
     int i;
     int zz  = 0;
     int threadID = 0;
+    auto excel = *this->file;
+    excel << "Test!";
+    TIME(tic);
+    
+    #pragma omp parallel for private(i, threadID)
+    for(i = 0; i < 30000000; i++ )
+    {
+        threadID = omp_get_thread_num();
+        #pragma omp critical
+        {
+            zz+=rand() % 100;
+        }
+    }
 
-    auto r = rand() % 10;
-    //printf("XXXXXXXXXX%d", r);
-    std::this_thread::sleep_for(std::chrono::milliseconds(r));
-    // #pragma omp parallel for private(i, threadID)
-    // for(i = 0; i < 16; i++ )
-    // {
-    //     threadID = omp_get_thread_num();
-    //     //#pragma omp critical
-    //     {
-    //         zz+=i;
-    //         printf("Thread %d reporting\n", threadID*i);
-    //     }
-    // }
-
+    TIME(toc);
+    auto elapsed = toc - tic;
+    Logger::INFO << elapsed << " " << zz;
+    excel << "HEHESZKI!";
 }
 
 void ForLoopBenchmark::RunSerial() {
@@ -31,6 +33,6 @@ void ForLoopBenchmark::RunSerial() {
     std::this_thread::sleep_for(std::chrono::milliseconds(r));
 }
 
-void ForLoopBenchmark::Init() {
-    Logger::INFO << "init for loop";
+void ForLoopBenchmark::Init(Logger::LoggerClass* file) {
+    this->file = file;
 }
