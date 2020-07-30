@@ -4,33 +4,40 @@
 #include <cstdlib>
 #include <thread>
 void ForLoopBenchmark::RunParallel() {
-    int i;
-    int zz  = 0;
+    int dummy = 0;
     int threadID = 0;
     auto excel = *this->file;
     excel << "Test!";
-    TIME(tic);
-    
-    #pragma omp parallel for private(i, threadID)
-    for(i = 0; i < 30000000; i++ )
-    {
-        threadID = omp_get_thread_num();
-        #pragma omp critical
+    int warmup = 20;
+    int rounds = 10000;
+    BENCHMARK_STRUCTURE(warmup, rounds, ELAPSED, {
+        mpragma(omp parallel for private(threadID))
+        for(int i = 0; i < 100000; i++ )
         {
-            zz+=rand() % 100;
+           LOOP_UNOPTIMIZER(dummy);
         }
-    }
+    })
 
-    TIME(toc);
-    auto elapsed = toc - tic;
-    Logger::INFO << elapsed << " " << zz;
+    Logger::INFO << "Dummy" << dummy;
     excel << "HEHESZKI!";
 }
 
 void ForLoopBenchmark::RunSerial() {
-    auto r = rand() % 40;
-    
-    std::this_thread::sleep_for(std::chrono::milliseconds(r));
+    int dummy=0;
+
+    auto excel = *this->file;
+    excel << "Test!";
+    int warmup = 20;
+    int rounds = 10000;
+    BENCHMARK_STRUCTURE(warmup, rounds, ELAPSED, {
+        for(int i = 0; i < 100000; i++ )
+        {
+            LOOP_UNOPTIMIZER(dummy);
+        }
+    })
+    Logger::INFO << ELAPSED << " ";
+    excel << "HEHESZKI!";
+    Logger::INFO << "Dummy" << dummy;
 }
 
 void ForLoopBenchmark::Init(Logger::LoggerClass* file) {
