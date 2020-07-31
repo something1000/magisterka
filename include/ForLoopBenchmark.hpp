@@ -5,6 +5,9 @@
 
 class ForLoopBenchmark : public Benchmark {
     public:
+        ForLoopBenchmark(std::string name) {
+            this->name = name;
+        };
         virtual void RunSerial() override;
         virtual void RunParallel() override;
         virtual void Init(Logger::LoggerClass* file) override;

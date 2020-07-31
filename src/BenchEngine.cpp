@@ -13,7 +13,7 @@ void BenchEngine::Start(BenchmarkMap benchmarks){
     }
 
     // Create Excel Columns Titles
-    excel << "Name" << "Warmup" << "Iterations" << "Mode" << "Duration" << "Avg. duration" << "Mode" << "Duration" << "Avg. duration";
+    excel << "Name" << "Warmup" << "Iterations" << "Duration";
     excel.newLine();
 
     for(auto& [name, bench] : benchmarks) {

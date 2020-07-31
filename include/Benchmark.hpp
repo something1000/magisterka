@@ -9,6 +9,8 @@ class Benchmark {
         virtual void RunSerial() = 0;
         virtual void RunParallel() = 0;
         virtual void Init(Logger::LoggerClass* file) = 0;
+    protected:
+        std::string name = "Benchmark";
 };
 
 #endif
