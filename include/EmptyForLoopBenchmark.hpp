@@ -1,11 +1,11 @@
-#ifndef _SECOND_HPP
-#define _SECOND_HPP
+#ifndef _EMPTYFORLOOP_HPP
+#define _EMPTYFORLOOP_HPP
 #include "Benchmark.hpp"
 #include "common.hpp"
 
-class SecondBenchmark : public Benchmark {
+class EmptyForLoopBenchmark : public Benchmark {
     public:
-        SecondBenchmark(std::string name) {
+        EmptyForLoopBenchmark(std::string name) {
             this->name = name;
         };
         virtual void RunSerial() override;

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <cstdlib>
+#include <ctime>
 #include <unordered_map>
 #include "Benchmark.hpp"
 #include "Logger.hpp"
@@ -14,6 +16,39 @@
 typedef std::shared_ptr<Benchmark> BenchmarkPtr;
 typedef std::unordered_map<std::string, BenchmarkPtr> BenchmarkMap;
 typedef unsigned int uint;
+
+template<class T>
+T** Create2DArray(int N, int M) {
+    //Temporary pointer for storing continous data
+    T* rawData = new T[N*M];
+
+    T** array2D = new T*[N];
+    for(int i=0; i < N; i++) {
+        array2D[i] = rawData;
+        rawData += M;
+    }
+
+    return array2D;
+} 
+
+inline void FillRandom2DArray(float** arr, int N, int M) {
+    std::srand(std::time(nullptr));
+    //Temporary pointer for storing continous data
+    for(int i=0; i < N; i++) {
+        for(int j=0; j < M; j++) {
+            arr[i][j] = static_cast<float>(std::rand()) / RAND_MAX;
+        }
+    }
+}
+
+inline void Print2DArray(float** arr, int N, int M) {
+    for(int i=0; i < N; i++) {
+        for(int j=0; j < M; j++){
+            std::cout << arr[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+}
 
 
 #define TIME(name) auto name = omp_get_wtime(); 

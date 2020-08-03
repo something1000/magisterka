@@ -2,13 +2,13 @@
 #include "BenchEngine.hpp"
 #include <memory>
 #include "Benchmark.hpp"
-#include "ForLoopBenchmark.hpp"
-#include "SecondBenchmark.hpp"
+#include "EmptyForLoopBenchmark.hpp"
+#include "MatrixMultiplication.hpp"
 
 
 static BenchmarkMap AllBenchmarks {
-    PUT_BENCHMARK(ForLoopBenchmark),
-    PUT_BENCHMARK(SecondBenchmark)
+    PUT_BENCHMARK(EmptyForLoopBenchmark),
+    PUT_BENCHMARK(MatrixMultiplication)
 };
 
 int main(int argc, char *argv[]) {

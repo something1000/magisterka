@@ -2,7 +2,7 @@
 #include "BenchEngine.hpp"
 #include "common.hpp"
 
-void BenchEngine::Start(BenchmarkMap benchmarks){
+void BenchEngine::Start(BenchmarkMap benchmarks) {
     std::fstream excelStream("excelraport.csv", std::ios::out);
     auto excel = Logger::EXCEL(excelStream);
 
