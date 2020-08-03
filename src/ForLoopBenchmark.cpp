@@ -1,10 +1,10 @@
-#include "ForLoopBenchmark.hpp"
+#include "EmptyForLoopBenchmark.hpp"
 #include <iostream>
 #include <omp.h>
 #include <cstdlib>
 #include <thread>
 
-void ForLoopBenchmark::RunParallel() {
+void EmptyForLoopBenchmark::RunParallel() {
     int dummy = 0;
 
     auto excel = *this->file;
@@ -27,7 +27,7 @@ void ForLoopBenchmark::RunParallel() {
     )
 }
 
-void ForLoopBenchmark::RunSerial() {
+void EmptyForLoopBenchmark::RunSerial() {
     int dummy=0;
 
     auto excel = *this->file;
@@ -48,6 +48,6 @@ void ForLoopBenchmark::RunSerial() {
     )
 }
 
-void ForLoopBenchmark::Init(Logger::LoggerClass* file) {
+void EmptyForLoopBenchmark::Init(Logger::LoggerClass* file) {
     this->file = file;
 }
