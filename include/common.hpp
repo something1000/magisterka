@@ -33,7 +33,6 @@ T** Create2DArray(int N, int M) {
 
 inline void FillRandom2DArray(float** arr, int N, int M) {
     std::srand(std::time(nullptr));
-    //Temporary pointer for storing continous data
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             arr[i][j] = static_cast<float>(std::rand()) / RAND_MAX;
