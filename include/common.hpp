@@ -70,7 +70,7 @@ inline void Print2DArray(float** arr, int N, int M) {
         }                                                                                         \
         auto end = omp_get_wtime();                                                               \
         auto _Elapsed = end - start;                                                              \
-        _Excel << this->name << _Warmup << _Rounds << _Elapsed;                                   \
+        _Excel << this->name  << _Mode << _Warmup << _Rounds << _Elapsed;                         \
         Logger::INFO << _Mode << " Warmup:" << _Warmup \
                      << " Rounds: " << _Rounds << " Time: " << _Elapsed;
 #endif
