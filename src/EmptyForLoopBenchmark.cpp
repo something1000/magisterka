@@ -5,11 +5,10 @@
 #include <thread>
 
 void EmptyForLoopBenchmark::RunParallel() {
-    int dummy = 0;
-
     auto excel = *this->file;
     int warmup = 20;
     int rounds = 10000;
+    int dummy = 0;
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
@@ -28,11 +27,11 @@ void EmptyForLoopBenchmark::RunParallel() {
 }
 
 void EmptyForLoopBenchmark::RunSerial() {
-    int dummy=0;
-
     auto excel = *this->file;
     int warmup = 20;
     int rounds = 10000;
+    int dummy=0;
+
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
         "Serial",
