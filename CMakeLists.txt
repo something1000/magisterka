@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(TARGET OpenMPBench)
 
-
+set(CMAKE_BUILD_TYPE Debug)
 
 
 #Bring the headers, such as Student.h into the project
