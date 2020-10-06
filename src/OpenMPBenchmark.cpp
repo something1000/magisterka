@@ -4,11 +4,13 @@
 #include "Benchmark.hpp"
 #include "EmptyForLoopBenchmark.hpp"
 #include "MatrixMultiplication.hpp"
+#include "Convolution2D.hpp"
 
 
 static BenchmarkMap AllBenchmarks {
     PUT_BENCHMARK(EmptyForLoopBenchmark),
     PUT_BENCHMARK(MatrixMultiplication)
+    PUT_BENCHMARK(Convolution2D)
 };
 
 int main(int argc, char *argv[]) {

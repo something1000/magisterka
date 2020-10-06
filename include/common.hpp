@@ -29,6 +29,24 @@ T** Create2DArray(int N, int M) {
     }
 
     return array2D;
+}
+
+template<class T>
+T*** Create3DArray(int N, int M, int K) {
+    T*** array3D = new T**[N]; // 5 
+    T** array2D = new T*[N*M]; // 25
+    T* rawData = new T[N*M*K]; // 75
+
+    for(int i=0; i < N; i++) { //5
+        array3D[i] = array2D;
+        for(int j=0; j < M; j++) {
+            array2D[j] = rawData;   
+            rawData += K;
+        }
+        array2D++;
+    }
+
+    return array3D;
 } 
 
 inline void FillRandom2DArray(float** arr, int N, int M) {
@@ -36,6 +54,17 @@ inline void FillRandom2DArray(float** arr, int N, int M) {
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             arr[i][j] = static_cast<float>(std::rand()) / RAND_MAX;
+        }
+    }
+}
+
+inline void FillRandom3DArray(float*** arr, int N, int M, int K) {
+    std::srand(std::time(nullptr));
+    for(int i=0; i < N; i++) {
+        for(int j=0; j < M; j++) {
+            for(int l=0; l < K; l++) {
+                arr[i][j][l] = static_cast<float>(std::rand()) / RAND_MAX;
+            }
         }
     }
 }
