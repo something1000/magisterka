@@ -79,8 +79,8 @@ void MatrixMultiplication::RunSerial() {
 void MatrixMultiplication::Init(Logger::LoggerClass* file) {
     this->file = file;
     
-    N = 1000;
-    M = 100;
+    N = 20;
+    M = 20;
     // Create contingouse memory arrays
 
     // NxM * MxN = NxN
