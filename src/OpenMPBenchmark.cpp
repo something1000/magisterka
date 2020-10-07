@@ -9,7 +9,7 @@
 
 static BenchmarkMap AllBenchmarks {
     PUT_BENCHMARK(EmptyForLoopBenchmark),
-    PUT_BENCHMARK(MatrixMultiplication)
+    PUT_BENCHMARK(MatrixMultiplication),
     PUT_BENCHMARK(Convolution2D)
 };
 
