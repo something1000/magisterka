@@ -48,6 +48,12 @@ T*** Create3DArray(int N, int M, int K) {
 
     return array3D;
 } 
+inline void FillRandomArray(float* arr, int N) {
+    std::srand(std::time(nullptr));
+    for(int i=0; i < N; i++) {
+        arr[i] = static_cast<float>(std::rand()) / RAND_MAX;
+    }
+}
 
 inline void FillRandom2DArray(float** arr, int N, int M) {
     std::srand(std::time(nullptr));

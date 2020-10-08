@@ -5,12 +5,14 @@
 #include "EmptyForLoopBenchmark.hpp"
 #include "MatrixMultiplication.hpp"
 #include "Convolution2D.hpp"
+#include "QuickSort.hpp"
 
 
 static BenchmarkMap AllBenchmarks {
     PUT_BENCHMARK(EmptyForLoopBenchmark),
     PUT_BENCHMARK(MatrixMultiplication),
-    PUT_BENCHMARK(Convolution2D)
+    PUT_BENCHMARK(Convolution2D),
+    PUT_BENCHMARK(QuickSort)
 };
 
 int main(int argc, char *argv[]) {
