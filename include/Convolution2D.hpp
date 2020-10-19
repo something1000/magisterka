@@ -13,16 +13,9 @@ class Convolution2D : public Benchmark {
         virtual void Init(Logger::LoggerClass* file) override;
         virtual ~Convolution2D() {
             if(initialized) {
-                delete[] input_data[0][0];
-                delete[] input_data[0];
-                delete[] input_data;
-
-                delete[] kernel_data[0];
-                delete[] kernel_data;
-
-                delete[] result[0][0];
-                delete[] result[0];
-                delete[] result;
+                Free3DArray<float>(input_data);
+                Free2DArray<float>(kernel_data);
+                Free3DArray<float>(result);
             }
         }
     private:

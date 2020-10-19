@@ -75,6 +75,28 @@ T**** Create4DArray(int N, int M, int K, int L) {
     return array4D;
 }
 
+template <class T> 
+void Free2DArray(T** ptr) {
+    delete[] ptr[0];
+    delete[] ptr;
+};
+
+template <class T> 
+void Free3DArray(T*** ptr) {
+    delete[] ptr[0][0]; 
+    delete[] ptr[0];
+    delete[] ptr;
+};
+
+template <class T> 
+void Free4DArray(T**** ptr) {
+    delete[] ptr[0][0][0]; 
+    delete[] ptr[0][0]; 
+    delete[] ptr[0];
+    delete[] ptr;
+};
+
+
 inline void FillRandomArray(float* arr, int N) {
     std::srand(std::time(nullptr));
     for(int i=0; i < N; i++) {
