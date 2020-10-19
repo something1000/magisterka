@@ -17,12 +17,15 @@ typedef std::shared_ptr<Benchmark> BenchmarkPtr;
 typedef std::unordered_map<std::string, BenchmarkPtr> BenchmarkMap;
 typedef unsigned int uint;
 
+typedef float**** Float4D;
+typedef float*** Float3D;
+typedef float** Float2D;
+
 template<class T>
 T** Create2DArray(int N, int M) {
-    //Temporary pointer for storing continous data
     T* rawData = new T[N*M];
-
     T** array2D = new T*[N];
+
     for(int i=0; i < N; i++) {
         array2D[i] = rawData;
         rawData += M;
@@ -33,11 +36,11 @@ T** Create2DArray(int N, int M) {
 
 template<class T>
 T*** Create3DArray(int N, int M, int K) {
-    T*** array3D = new T**[N]; // 5 
-    T** array2D = new T*[N*M]; // 25
-    T* rawData = new T[N*M*K]; // 75
+    T*** array3D = new T**[N]; 
+    T** array2D = new T*[N*M];
+    T* rawData = new T[N*M*K];
 
-    for(int i=0; i < N; i++) { //5
+    for(int i=0; i < N; i++) {
         array3D[i] = array2D;
         for(int j=0; j < M; j++) {
             array2D[j] = rawData;   
@@ -47,7 +50,31 @@ T*** Create3DArray(int N, int M, int K) {
     }
 
     return array3D;
-} 
+}
+
+template<class T>
+T**** Create4DArray(int N, int M, int K, int L) {
+    T**** array4D = new T***[N];
+    T*** array3D = new T**[N*M]; 
+    T** array2D = new T*[N*M*K];
+    T* rawData = new T[N*M*K*L];
+
+    for(int i=0; i < N; ++i) {
+        array4D[i] = array3D;
+        for(int j=0; j < M; ++j) {
+            array3D[i] = array2D;
+            for(int z=0; z < K; ++z) {
+                array2D[z] = rawData;   
+                rawData += L;
+            }
+            ++array2D;
+        }
+        ++array3D;
+    }
+
+    return array4D;
+}
+
 inline void FillRandomArray(float* arr, int N) {
     std::srand(std::time(nullptr));
     for(int i=0; i < N; i++) {
