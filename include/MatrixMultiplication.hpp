@@ -13,14 +13,9 @@ class MatrixMultiplication : public Benchmark {
         virtual void Init(Logger::LoggerClass* file) override;
         virtual ~MatrixMultiplication() {
             if(initialized) {
-                delete[] sourceA[0];
-                delete[] sourceA;
-
-                delete[] sourceB[0];
-                delete[] sourceB;
-
-                delete[] result[0];
-                delete[] result;
+                Free2DArray<float>(sourceA);
+                Free2DArray<float>(sourceB);
+                Free2DArray<float>(result);
             }
         }
     private:
