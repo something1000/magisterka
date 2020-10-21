@@ -62,7 +62,7 @@ T**** Create4DArray(int N, int M, int K, int L) {
     for(int i=0; i < N; ++i) {
         array4D[i] = array3D;
         for(int j=0; j < M; ++j) {
-            array3D[i] = array2D;
+            array3D[j] = array2D;
             for(int z=0; z < K; ++z) {
                 array2D[z] = rawData;   
                 rawData += L;
