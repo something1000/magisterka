@@ -22,54 +22,54 @@ typedef float*** Float3D;
 typedef float** Float2D;
 
 template<class T>
-T** Create2DArray(int N, int M) {
-    T* rawData = new T[N*M];
-    T** array2D = new T*[N];
+T** Create2DArray(int H, int W) {
+    T** array2D = new T*[W];
+    T* rawData = new T[H*W];
 
-    for(int i=0; i < N; i++) {
+    for(int i=0; i < H; i++) {
         array2D[i] = rawData;
-        rawData += M;
+        rawData += W;
     }
 
     return array2D;
 }
 
 template<class T>
-T*** Create3DArray(int N, int M, int K) {
-    T*** array3D = new T**[N]; 
-    T** array2D = new T*[N*M];
-    T* rawData = new T[N*M*K];
+T*** Create3DArray(int C, int H, int W) {
+    T*** array3D = new T**[C]; 
+    T** array2D = new T*[C*H];
+    T* rawData = new T[C*H*W];
 
-    for(int i=0; i < N; i++) {
+    for(int i=0; i < C; i++) {
         array3D[i] = array2D;
-        for(int j=0; j < M; j++) {
+        for(int j=0; j < H; j++) {
             array2D[j] = rawData;   
-            rawData += K;
+            rawData += W;
         }
-        array2D++;
+        array2D += H;
     }
 
     return array3D;
 }
 
 template<class T>
-T**** Create4DArray(int N, int M, int K, int L) {
+T**** Create4DArray(int N, int C, int H, int W) {
     T**** array4D = new T***[N];
-    T*** array3D = new T**[N*M]; 
-    T** array2D = new T*[N*M*K];
-    T* rawData = new T[N*M*K*L];
+    T*** array3D = new T**[N*C]; 
+    T** array2D = new T*[N*C*H];
+    T* rawData = new T[N*C*H*W];
 
     for(int i=0; i < N; ++i) {
         array4D[i] = array3D;
-        for(int j=0; j < M; ++j) {
+        for(int j=0; j < C; ++j) {
             array3D[j] = array2D;
-            for(int z=0; z < K; ++z) {
+            for(int z=0; z < H; ++z) {
                 array2D[z] = rawData;   
-                rawData += L;
+                rawData += W;
             }
-            ++array2D;
+            array2D += H;
         }
-        ++array3D;
+        array3D += C;
     }
 
     return array4D;
@@ -119,6 +119,19 @@ inline void FillRandom3DArray(float*** arr, int N, int M, int K) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
                 arr[i][j][l] = static_cast<float>(std::rand()) / RAND_MAX;
+            }
+        }
+    }
+}
+
+inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O) {
+    std::srand(std::time(nullptr));
+    for(int i=0; i < N; i++) {
+        for(int j=0; j < M; j++) {
+            for(int l=0; l < K; l++) {
+                 for(int z=0; z < O; z++) {
+                    arr[i][j][l][z] = static_cast<float>(std::rand()) / RAND_MAX;
+                 }
             }
         }
     }
