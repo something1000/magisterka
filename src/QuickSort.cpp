@@ -4,6 +4,8 @@
 #include <cstring>
 #include <functional>
 
+// TODO: replace lambdas to functions
+
 float PartitionArray(float *array, int left, int right) {
     int partitionIndex = left + (right - left) / 2;
     float partitionValue = array[partitionIndex];
@@ -21,12 +23,46 @@ float PartitionArray(float *array, int left, int right) {
 }
 
 
+void ParallelQuicksort(float* array, int left, int right) {
+
+}
 void QuickSort::RunParallel() {
 
     auto excel = *this->file;
-    int warmup = 10;
-    int rounds = 1000;
-
+    int warmup = 5;
+    int rounds = 100;
+    int x = 1;
+    std::function<void(float*, int, int)> ParallelQuicksort;
+    ParallelQuicksort = [&ParallelQuicksort](float *array, int left, int right){
+        if ( left < right ) {
+            
+            float p = PartitionArray(array, left, right);
+            mpragma(omp task default(none) firstprivate(ParallelQuicksort, array, left, p)){
+                ParallelQuicksort(array, left, p - 1);
+            }
+            mpragma(omp task default(none) firstprivate(ParallelQuicksort, array, right, p)){
+                ParallelQuicksort(array, p + 1, right);
+            }
+        }
+    };
+    BENCHMARK_STRUCTURE(
+        excel,      // name of csv logger
+        "Parallel",   // name of benchmark
+        warmup,     // name of warmup rounds variable
+        rounds,     // name of benchmark rounds variable
+        ELAPSED,    // variable name to store execution time
+        {
+            std::memcpy(data, input_data, size * sizeof(float));
+            mpragma(omp parallel shared(data, size)) {
+                mpragma(omp single) {
+                    ParallelQuicksort(data, 0, size-1);
+                }
+                #pragma omp taskwait
+            }
+        }
+   )
+//    Print2DArray(&data, 1, size);
+//    std::cout << "\n\n=============\n\n";
 }
 
 void QuickSort::RunSerial() {
@@ -34,13 +70,14 @@ void QuickSort::RunSerial() {
     auto excel = *this->file;
     int warmup = 5;
     int rounds = 100;
-
+    int x = 1;
     std::function<void(float*, int, int)> Quicksort;
-    Quicksort = [&Quicksort](float *array, int left, int right){
+    Quicksort = [&Quicksort, &x](float *array, int left, int right){
         if ( left < right ) {
             float p = PartitionArray(array, left, right);
             Quicksort(array, left, p - 1); // Left branch
             Quicksort(array, p + 1, right); // Right branch
+            //std::cout << "x: " << x++ << std::endl;
         }
     };
     BENCHMARK_STRUCTURE(
@@ -54,11 +91,13 @@ void QuickSort::RunSerial() {
             Quicksort(data, 0, size-1);
         }
    )
+    // Print2DArray(&data, 1, size);
+    // std::cout << "\n\n=============\n\n";
 }
 
 void QuickSort::Init(Logger::LoggerClass* file) {
     this->file = file;
-    size = 20000;
+    size = 1000000;
     input_data = new float[size];
     data = new float[size];
     FillRandomArray(input_data, size);
