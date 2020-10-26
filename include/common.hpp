@@ -17,9 +17,14 @@ typedef std::shared_ptr<Benchmark> BenchmarkPtr;
 typedef std::unordered_map<std::string, BenchmarkPtr> BenchmarkMap;
 typedef unsigned int uint;
 
-typedef float**** Float4D;
-typedef float*** Float3D;
-typedef float** Float2D;
+template <class T>
+using Tensor4D = T****;
+
+template <class T>
+using Tensor3D = T***;
+
+template <class T>
+using Tensor2D = T**;
 
 template<class T>
 T** Create2DArray(int H, int W) {
@@ -140,7 +145,7 @@ inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O) {
 inline void Print2DArray(float** arr, int N, int M) {
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++){
-            std::cout << arr[i][j] << " ";
+            std::cout << (float)arr[i][j] << " ";
         }
         std::cout << "\n";
     }
