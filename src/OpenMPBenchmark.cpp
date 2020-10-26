@@ -7,14 +7,16 @@
 #include "Convolution2D.hpp"
 #include "QuickSort.hpp"
 #include "BatchNorm.hpp"
+#include "QuantizeTensor.hpp"
 
 
 static BenchmarkMap AllBenchmarks {
    //  PUT_BENCHMARK(EmptyForLoopBenchmark),
    //  PUT_BENCHMARK(MatrixMultiplication),
    //  PUT_BENCHMARK(Convolution2D),
-    PUT_BENCHMARK(QuickSort),
-   // PUT_BENCHMARK(BatchNorm)
+   // PUT_BENCHMARK(QuickSort),
+   // PUT_BENCHMARK(BatchNorm),
+    PUT_BENCHMARK(QuantizeTensor)
 };
 
 int main(int argc, char *argv[]) {
