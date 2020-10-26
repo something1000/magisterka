@@ -25,8 +25,8 @@ class BatchNorm : public Benchmark {
         Logger::LoggerClass* file;
         bool initialized = false;
         int N,C,H,W;
-        Float4D input_data;
-        Float4D output;
+        Tensor4D<float> input_data;
+        Tensor4D<float> output;
         float* mean;
         float* variance;
         float* gamma;
