@@ -10,11 +10,13 @@ class WaveEquation : public Benchmark {
             this->name = name;
         };
         virtual void RunSerial() override;
+        virtual void RunParallel_1();
+        virtual void RunParallel_2();
         virtual void RunParallel() override;
         virtual void Init(Logger::LoggerClass* file) override;
         virtual ~WaveEquation() {
             if(initialized) {
-                Free3DArray<double>(wave);
+                Free3DArray<double>(waves);
             }
         }
     private:
@@ -24,7 +26,8 @@ class WaveEquation : public Benchmark {
         double v, a, b, q, w;
         int M, N, K, beta;
         double dx, dy, dt, px, py;
-        Tensor3D<double> wave;
+
+        Tensor3D<double> waves;
 };
 
 #endif
