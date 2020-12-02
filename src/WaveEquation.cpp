@@ -6,34 +6,112 @@
 #include <cstring>
 
 void WaveEquation::RunParallel() {
+    RunParallel_1();
+    RunParallel_2();
+}
+void WaveEquation::RunParallel_1() {
 
     auto excel = *this->file;
-    int warmup = 0;
-    int rounds = 1;
+    int warmup = 5;
+    int rounds = 200;
+    Tensor2D<double> src_2;
+    Tensor2D<double> src_1;
+    Tensor2D<double> dst;
+
+   { // namespace
+        BENCHMARK_STRUCTURE(
+            excel,      // name of csv logger
+            "Parallel_parallel_outside",   // name of benchmark
+            warmup,     // name of warmup rounds variable
+            rounds,     // name of benchmark rounds variable
+            ELAPSED,    // variable name to store execution time
+            {
+                mpragma(omp parallel private(src_2, src_1, dst) shared(waves, M, N)) 
+                {
+                    for(int k=0; k < K-1; k++) {
+                        //mpragma(omp master) {
+                            src_2 = waves[k % 3]; //
+                            src_1 = waves[(k + 1) % 3];
+                            dst  = waves[(k + 2) % 3];
+                       // }
+                        //mpragma(omp barrier)
+                        mpragma(omp for schedule(static, 5))
+                        for(int i=1; i < M-1; i++) {
+                            for(int j=1; j < N-1; j++) {
+                                // z tlumieniem
+                                // dst[i][j] = 2.0 / q * (1 - px - py)* src[k][i][j]      // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
+                                //                 + px * (src[k][i+1][j] + src[k][i-1][j])/q  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))/q
+                                //                 + py * (src[k][i][j+1] + src[k][i][j-1])/q  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k))/q
+                                //                 - w*wave[k-1][i][j]/q;                        // w*f(2:M-1,2:N-1,k-1)/q
+                                // bez tlumienia
+                                dst[i][j] = 2.0 * (1 - px - py)* src_1[i][j]             // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
+                                                + px * (src_1[i+1][j] + src_1[i-1][j])  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))
+                                                + py * (src_1[i][j+1] + src_1[i][j-1])  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k)
+                                                - src_2[i][j];                        // f(2:M-1,2:N-1,k-1)
+                            }
+                        }
+                  }
+                }
+            }
+        )
+   }
+
+}
+
+
+void WaveEquation::RunParallel_2() {
+
+    auto excel = *this->file;
+    int warmup = 5;
+    int rounds = 200;
+
+    Tensor2D<double> src_2;
+    Tensor2D<double> src_1;
+    Tensor2D<double> dst;
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Parallel",   // name of benchmark
+        "Parallel_parallel_inside",   // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
         {
-            mpragma(omp parallel) {
-                mpragma(omp single) {
-                    //  _CTFFT_Parallel(input, output, size, 1);
-                    int i =0;
+
+            for(int k=0; k < K-1; k++) {
+                src_2 = waves[k % 3];
+                src_1 = waves[(k + 1) % 3];
+                dst  = waves[(k + 2) % 3];
+
+                mpragma(omp parallel for schedule(static, 5))
+                for(int i=1; i < M-1; i++) {
+                    for(int j=1; j < N-1; j++) {
+                        // z tlumieniem
+                        // dst[i][j] = 2.0 / q * (1 - px - py)* src[k][i][j]      // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
+                        //                 + px * (src[k][i+1][j] + src[k][i-1][j])/q  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))/q
+                        //                 + py * (src[k][i][j+1] + src[k][i][j-1])/q  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k))/q
+                        //                 - w*wave[k-1][i][j]/q;                        // w*f(2:M-1,2:N-1,k-1)/q
+                        // bez tlumienia
+                        dst[i][j] = 2.0 * (1 - px - py)* src_1[i][j]             // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
+                                        + px * (src_1[i+1][j] + src_1[i-1][j])  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))
+                                        + py * (src_1[i][j+1] + src_1[i][j-1])  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k)
+                                        - src_2[i][j];                        // f(2:M-1,2:N-1,k-1)
+                    }
                 }
             }
         }
-   )
+    )
 
 }
 
 void WaveEquation::RunSerial() {
 
     auto excel = *this->file;
-    int warmup = 0;
-    int rounds = 1;
+    int warmup = 5;
+    int rounds = 200;
+
+    Tensor2D<double> src_2;
+    Tensor2D<double> src_1;
+    Tensor2D<double> dst;
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
         "Serial",   // name of benchmark
@@ -41,15 +119,28 @@ void WaveEquation::RunSerial() {
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
         {
-            int i = 0;
+            for(int k=0; k < K-1; k++) {
+                src_2 = waves[k % 3]; //
+                src_1 = waves[(k + 1) % 3];
+                dst  = waves[(k + 2) % 3];
+
+                for(int i=1; i < M-1; i++) {
+                    for(int j=1; j < N-1; j++) {
+                        // z tlumieniem
+                        // dst[i][j] = 2.0 / q * (1 - px - py)* src[k][i][j]      // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
+                        //                 + px * (src[k][i+1][j] + src[k][i-1][j])/q  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))/q
+                        //                 + py * (src[k][i][j+1] + src[k][i][j-1])/q  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k))/q
+                        //                 - w*wave[k-1][i][j]/q;                        // w*f(2:M-1,2:N-1,k-1)/q
+                        // bez tlumienia
+                        dst[i][j] = 2.0 * (1 - px - py)* src_1[i][j]             // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
+                                        + px * (src_1[i+1][j] + src_1[i-1][j])  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))
+                                        + py * (src_1[i][j+1] + src_1[i][j-1])  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k)
+                                        - src_2[i][j];                        // f(2:M-1,2:N-1,k-1)
+                    }
+                }
+            }
         }
    )
-    for(int i=0; i < M; ++i) {
-        for(int j=0; j < N; ++j) {
-            std::cout << wave[0][i][j] << " ";
-        }
-        std::cout << "\n";
-    }
 }
 
 void WaveEquation::Init(Logger::LoggerClass* file) {
@@ -59,11 +150,11 @@ void WaveEquation::Init(Logger::LoggerClass* file) {
     v = 100;
     a = 1.2;
     b = 0.8;
-    M = 10;
-    N = 6;
-    K = 20;
+    M = 1000;
+    N = 100;
+    K = 1000;
     double* x = new double[M]; //linspace(0,a,M); // utworz M elementów od 0 do a z równym odstępem
-    double* y = new double[M]; //linspace(0,b,N); // utworz N elementów od 0 do b z równym odstępem
+    double* y = new double[N]; //linspace(0,b,N); // utworz N elementów od 0 do b z równym odstępem
 
     auto linspace = [=](double* arr, double l, double r, int size) {
         const double delta = (r - l) / (size - 1);
@@ -102,46 +193,19 @@ void WaveEquation::Init(Logger::LoggerClass* file) {
         return std::tuple<Tensor2D<double>, Tensor2D<double>>(ret_1, ret_2);
     };
 
-    auto meshgrid_XY = meshgrid(x, M, y, N);
-    auto X = std::get<0>(meshgrid_XY);
-    auto Y = std::get<1>(meshgrid_XY);
 
-    std::cout << "\n\nmeshgrid x\n";
-    
-    for(int i=0; i < M; ++i) {
-        for(int j=0; j < N; ++j) {
-            std::cout << X[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-
-
-
-    std::cout << "\n\nmeshgrid y\n";
-    for(int i=0; i < M; ++i) {
-        for(int j=0; j < N; ++j) {
-            std::cout << Y[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-    std::cout << "\n\n\n\n\n";
     //[X,Y]=meshgrid(x,y); // z vectorów x i y stworz kombinacje: wektor X powtorzony len(y) razy w pionie - wektor y powtorzony len(x) razy w poziomie
-    //X=X'; // transpozycja
-    //Y=Y'; // transpozycja
+    //X=X'; // transpozycja -- zawartwa funkcji meshgrid
+    //Y=Y'; // transpozycja -- zawarta w funkcji meshgrid
+    auto meshgrid_XY = meshgrid(x, M, y, N);
+    auto X = std::get<0>(meshgrid_XY); // MxN
+    auto Y = std::get<1>(meshgrid_XY); // MxN
+
     
     //s=X.^2.*(a-X).*Y.^2.*(b-Y);
     Tensor2D<double> s = Create2DArray<double>(M, N);
     std::memset(s[0], 0, M*N*sizeof(double));
-    std::cout << "\n\nZERO S y\n";
-    for(int i=0; i < M; ++i) {
-        for(int j=0; j < N; ++j) {
-            std::cout << s[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
 
-        std::cout << "\n";
-        std::cout << "\n";
     for(int i=0; i < M; ++i) {
         for(int j=0; j < N; ++j) { //elemwise
             // s    =        X.^2.       *     (a-X).     *         Y.^2.       *     (b-Y);
@@ -150,76 +214,41 @@ void WaveEquation::Init(Logger::LoggerClass* file) {
     }
 
 
-    std::cout << "\n\nS\n";
-    for(int i=0; i < M; ++i) {
-        for(int j=0; j < N; ++j) {
-            std::cout << s[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-    //g = Create2DArray(M, N);// zeros(M,N);
+    // warunki początkowe - nie potrzebne - wszędzie 0
+    // g = Create2DArray(M, N);// zeros(M,N);
     // d = Create3DArray(1, N, K);//  d=zeros(1,N,K);
     // r = Create3DArray(M, 1, K);//  r=zeros(M,1,K);
     // u = Create3DArray(1, N, K);//  u=zeros(1,N,K);
     // l = Create3DArray(M, 1, K);//  l=zeros(M,1,K);;
-    wave = Create3DArray<double>(K, M, N);//  f=zeros(M,N,K)
-
     // memset(g[0],    0, M * K *sizeof(double));
     // memset(d[0][0], 0, N * K *sizeof(double));
     // memset(r[0][0], 0, M * K *sizeof(double));
     // memset(u[0][0], 0, N * K *sizeof(double));
     // memset(l[0][0], 0, M * K *sizeof(double));
-    //memset(f[0][0], 0, M * N * K *sizeof(double)); // tylko
     // f(M,:,:)=d(1,:,:); f(:,N,:)=r(:,1,:); f(1,:,:)=u(1,:,:); f(:,1,:)=l(:,1,:);
-    //memset(f[0][0], 0, M * N * K *sizeof(double)); // tylko to potrzebne - d r u l nie uzywane w obliczeniach
 
-        std::cout << "\n";
-        std::cout << "\n";
+    waves = Create3DArray<double>(3, M, N);//  f=zeros(M,N) // two previous timesteps needed
+
     for(int i=0; i < M; i++) {
         for(int j=0; j < N; j++) {
-            wave[0][i][j] = s[i][j];
+            waves[0][i][j] = s[i][j];
         }
     }
 
-    //f(2:M-1,2:N-1,2)=(1-px-py)*f(2:M-1,2:N-1,1)+px*(f(3:M,2:N-1,1)+f(1:M-2,2:N-1,1))/2
-    //    +py*(f(2:M-1,3:N,1)+f(2:M-1,1:N-2,1))/2 + w*dt*g(2:M-1,2:N-1);
+    Free2DArray(s);
+    Free2DArray(Y);
+    Free2DArray(X);
+    delete[] x;
+    delete[] y;
 
     for(int i=1; i < M-1; i++) {
         for(int j=1; j < N-1; j++) {
-            wave[1][i][j] = (1 - px - py) * wave[0][i][j]               // (1-px-py)*f(2:M-1,2:N-1,1)
-                          + px * (wave[0][i+1][j] + wave[0][i-1][j])/2  // px*(f(3:M,2:N-1,1)+f(1:M-2,2:N-1,1))/2
-                          + py * (wave[0][i][j+1] + wave[0][i][j-1])/2; // py*(f(2:M-1,3:N,1)+f(2:M-1,1:N-2,1))/2
+            waves[1][i][j] = (1 - px - py) * waves[0][i][j]               // (1-px-py)*f(2:M-1,2:N-1,1)
+                          + px * (waves[0][i+1][j] + waves[0][i-1][j])/2  // px*(f(3:M,2:N-1,1)+f(1:M-2,2:N-1,1))/2
+                          + py * (waves[0][i][j+1] + waves[0][i][j-1])/2; // py*(f(2:M-1,3:N,1)+f(2:M-1,1:N-2,1))/2
         }
     }
 
-
-    for(int k=1; k < K-1; k++) {
-        for(int i=1; i < M-1; i++) {
-            for(int j=1; j < N-1; j++) {
-                wave[k+1][i][j] = 2.0 / q * (1 - px - py)* wave[k][i][j]      // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
-                                + px * (wave[k][i+1][j] + wave[k][i-1][j])/q  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))/q
-                                + py * (wave[k][i][j+1] + wave[k][i][j-1])/q  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k))/q
-                                 - w*wave[k-1][i][j]/q;                        // w*f(2:M-1,2:N-1,k-1)/q
-            }
-        }
-    }
-
-// f(2:M-1,2:N-1,2)=(1-px-py)*f(2:M-1,2:N-1,1)+px*(f(3:M,2:N-1,1)+f(1:M-2,2:N-1,1))/2+py*(f(2:M-1,3:N,1)+f(2:M-1,1:N-2,1))/2 + w*dt*g(2:M-1,2:N-1);
-
-// for k=2:K-1
-//     f(2:M-1,2:N-1,k+1)=2/q*(1-px-py)*f(2:M-1,2:N-1,k)+px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))/q + py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k))/q-w*f(2:M-1,2:N-1,k-1)/q;
-// end
-    
-    for(int k=0; k < K; k++) {
-            std::cout << "\n";
-        std::cout << "WAVE " << k << "\n";
-        for(int i=0; i < M; ++i) {
-            for(int j=0; j < N; ++j) {
-                std::cout << wave[k][i][j] << " ";
-            }
-            std::cout << "\n";
-        }
-    }
 
     this->initialized = true;
 }
