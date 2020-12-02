@@ -10,6 +10,9 @@ class QuantizeTensor : public Benchmark {
         };
         virtual void RunSerial() override;
         virtual void RunParallel() override;
+        void RunParallel_1();
+        void RunParallel_2();
+        void RunParallel_3();
         virtual void Init(Logger::LoggerClass* file) override;
         virtual ~QuantizeTensor() {
             if(initialized) {
