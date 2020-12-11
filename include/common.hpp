@@ -28,7 +28,7 @@ using Tensor2D = T**;
 
 template<class T>
 T** Create2DArray(int H, int W) {
-    T** array2D = new T*[W];
+    T** array2D = new T*[H];
     T* rawData = new T[H*W];
 
     for(int i=0; i < H; i++) {
