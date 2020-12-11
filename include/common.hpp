@@ -10,12 +10,18 @@
 #include <unordered_map>
 #include "Benchmark.hpp"
 #include "Logger.hpp"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include <rapidjson/istreamwrapper.h>
 
 #define PUT_BENCHMARK(NAME) {#NAME, std::make_shared<NAME>(#NAME)}
 
 typedef std::shared_ptr<Benchmark> BenchmarkPtr;
 typedef std::unordered_map<std::string, BenchmarkPtr> BenchmarkMap;
 typedef unsigned int uint;
+typedef rapidjson::Document Json;
+typedef std::shared_ptr<rapidjson::Document> JsonPtr;
 
 template <class T>
 using Tensor4D = T****;

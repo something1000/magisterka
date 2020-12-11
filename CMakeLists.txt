@@ -9,6 +9,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 #Bring the headers, such as Student.h into the project
 include_directories(include)
+include_directories(3rdparty/rapidjson/include)
 file(GLOB SOURCES "src/*.cpp")
 
 add_executable(${TARGET} ${SOURCES})
