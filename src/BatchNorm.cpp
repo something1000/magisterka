@@ -242,7 +242,7 @@ void BatchNorm::Init(Logger::LoggerClass* file, const rapidjson::Value& properti
     mean = new float[C]; //Create3DArray<float>(C, H, W);
     variance = new float[C]; //Create3DArray<float>(C, H, W);
 
-    //TODO: adapt length
+
     FillRandomArray(gamma, C);
     FillRandomArray(beta, C);
     //gamma[0] = 0.1f; gamma[1] = 0.2f; gamma[2] = 0.3f;
