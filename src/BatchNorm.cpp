@@ -10,8 +10,6 @@
 void BatchNorm::RunParallel() {
 
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 1000;
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
@@ -83,10 +81,7 @@ void BatchNorm::RunParallel() {
 }
 
 void BatchNorm::RunSerial() {
-
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 1000;
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
@@ -151,12 +146,18 @@ void BatchNorm::RunSerial() {
 //    }
 }
 
-void BatchNorm::Init(Logger::LoggerClass* file) {
+void BatchNorm::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
-    N = 32;
-    C = 3;
-    H = 224;
-    W = 224;
+    
+    rounds = properties["rounds"].GetInt();
+    warmup = properties["warmup"].GetInt();
+
+    N = properties["N"].GetInt();
+    C = properties["C"].GetInt();
+    H = properties["H"].GetInt();
+    W = properties["W"].GetInt();
+    Logger::INFO << VAR(N) << VAR(C) << VAR(H) << VAR(W);
+
     input_data = Create4DArray<float>(N, C, H, W);
     FillRandom4DArray(input_data, N, C, H, W);
     gamma = new float[C];
@@ -165,7 +166,9 @@ void BatchNorm::Init(Logger::LoggerClass* file) {
     mean = new float[C]; //Create3DArray<float>(C, H, W);
     variance = new float[C]; //Create3DArray<float>(C, H, W);
 
-
-    gamma[0] = 0.1f; gamma[1] = 0.2f; gamma[2] = 0.3f;
-    beta[0] = 0.01f; beta[1] = 0.02f; beta[2] = 0.03f;
+    //TODO: adapt length
+    FillRandomArray(gamma, C);
+    FillRandomArray(beta, C);
+    //gamma[0] = 0.1f; gamma[1] = 0.2f; gamma[2] = 0.3f;
+    //beta[0] = 0.01f; beta[1] = 0.02f; beta[2] = 0.03f;
 }

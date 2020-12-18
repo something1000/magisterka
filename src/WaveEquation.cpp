@@ -12,8 +12,7 @@ void WaveEquation::RunParallel() {
 void WaveEquation::RunParallel_1() {
 
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 200;
+
     Tensor2D<double> src_2;
     Tensor2D<double> src_1;
     Tensor2D<double> dst;
@@ -62,8 +61,6 @@ void WaveEquation::RunParallel_1() {
 void WaveEquation::RunParallel_2() {
 
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 200;
 
     Tensor2D<double> src_2;
     Tensor2D<double> src_1;
@@ -106,8 +103,6 @@ void WaveEquation::RunParallel_2() {
 void WaveEquation::RunSerial() {
 
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 200;
 
     Tensor2D<double> src_2;
     Tensor2D<double> src_1;
@@ -143,16 +138,21 @@ void WaveEquation::RunSerial() {
    )
 }
 
-void WaveEquation::Init(Logger::LoggerClass* file) {
+void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
 
+    rounds = properties["rounds"].GetInt();//128;
+    warmup = properties["warmup"].GetInt();//128;
 
     v = 100;
     a = 1.2;
     b = 0.8;
-    M = 1000;
-    N = 100;
-    K = 1000;
+
+    M = properties["M"].GetInt();
+    N = properties["N"].GetInt();
+    K = properties["K"].GetInt();
+    Logger::INFO << VAR(M) << VAR(N) << VAR(K);
+
     double* x = new double[M]; //linspace(0,a,M); // utworz M elementów od 0 do a z równym odstępem
     double* y = new double[N]; //linspace(0,b,N); // utworz N elementów od 0 do b z równym odstępem
 

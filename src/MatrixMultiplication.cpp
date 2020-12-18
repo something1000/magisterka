@@ -4,10 +4,8 @@
 #include <cstring>
 
 void MatrixMultiplication::RunParallel() {
-
     auto excel = *this->file;
-    int warmup = 10;
-    int rounds = 1000;
+
     {
         BENCHMARK_STRUCTURE(
             excel,                  // name of csv logger
@@ -29,6 +27,7 @@ void MatrixMultiplication::RunParallel() {
         )
     }
 
+    //TODO rozbic na dwie funkcje
     // second benchmark without collapse clause
     {
         BENCHMARK_STRUCTURE(
@@ -56,8 +55,6 @@ void MatrixMultiplication::RunParallel() {
 void MatrixMultiplication::RunSerial() {
 
     auto excel = *this->file;
-    int warmup = 10;
-    int rounds = 1000;
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
         "Serial",   // name of benchmark
@@ -76,13 +73,15 @@ void MatrixMultiplication::RunSerial() {
         }
     )
 }
-void MatrixMultiplication::Init(Logger::LoggerClass* file) {
+void MatrixMultiplication::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
-    
-    N = 20;
-    M = 20;
-    // Create contingouse memory arrays
+    rounds = properties["rounds"].GetInt();
+    warmup = properties["warmup"].GetInt();
+    N = properties["N"].GetInt();
+    M = properties["M"].GetInt();
+    Logger::INFO << VAR(N) << VAR(M);
 
+    // Create contingouse memory arrays
     // NxM * MxN = NxN
     sourceA = Create2DArray<float>(N, M);
     sourceB = Create2DArray<float>(M, N);

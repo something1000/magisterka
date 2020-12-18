@@ -10,7 +10,7 @@ class MatrixMultiplication : public Benchmark {
         };
         virtual void RunSerial() override;
         virtual void RunParallel() override;
-        virtual void Init(Logger::LoggerClass* file) override;
+        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~MatrixMultiplication() {
             if(initialized) {
                 Free2DArray<float>(sourceA);
@@ -20,6 +20,8 @@ class MatrixMultiplication : public Benchmark {
         }
     private:
         Logger::LoggerClass* file;
+        int rounds;
+        int warmup;
         bool initialized = false;
         int N, M;
         float** sourceA;

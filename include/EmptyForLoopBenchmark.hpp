@@ -10,9 +10,12 @@ class EmptyForLoopBenchmark : public Benchmark {
         };
         virtual void RunSerial() override;
         virtual void RunParallel() override;
-        virtual void Init(Logger::LoggerClass* file) override;
+        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
     private:
         Logger::LoggerClass* file;
+        int rounds;
+        int warmup;
+        int iterations;
 };
 
 #endif

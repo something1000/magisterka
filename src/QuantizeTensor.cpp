@@ -13,10 +13,7 @@ void QuantizeTensor::RunParallel() {
 
 
 void QuantizeTensor::RunParallel_1() {
-
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 1000;
 
     float* raw_input = input[0][0][0];
     int8_t* raw_output = output[0][0][0];
@@ -42,10 +39,7 @@ void QuantizeTensor::RunParallel_1() {
 }
 
 void QuantizeTensor::RunParallel_2() {
-
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 1000;
 
     float* raw_input = input[0][0][0];
     int8_t* raw_output = output[0][0][0];
@@ -67,10 +61,7 @@ void QuantizeTensor::RunParallel_2() {
 
 
 void QuantizeTensor::RunParallel_3() {
-
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 1000;
 
     float* raw_input = input[0][0][0];
     int8_t* raw_output = output[0][0][0];
@@ -91,10 +82,8 @@ void QuantizeTensor::RunParallel_3() {
 }
 
 void QuantizeTensor::RunSerial() {
-
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 1000;
+
     float* raw_input = input[0][0][0];
     int8_t* raw_output = output[0][0][0];
     BENCHMARK_STRUCTURE(
@@ -111,13 +100,16 @@ void QuantizeTensor::RunSerial() {
    )
 }
 
-void QuantizeTensor::Init(Logger::LoggerClass* file) {
+void QuantizeTensor::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
+    rounds = properties["rounds"].GetInt();//128;
+    warmup = properties["warmup"].GetInt();//128;
 
-    N = 32;
-    C = 3;
-    H = 224;
-    W = 224;
+    N =  properties["N"].GetInt();
+    C =  properties["C"].GetInt();
+    H =  properties["H"].GetInt();
+    W =  properties["W"].GetInt();
+    Logger::INFO << VAR(N) << VAR(C) << VAR(H) << VAR(W);
     scale = 0.0384f;
     zero_position = 0;
     

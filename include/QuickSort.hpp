@@ -10,7 +10,7 @@ class QuickSort : public Benchmark {
         };
         virtual void RunSerial() override;
         virtual void RunParallel() override;
-        virtual void Init(Logger::LoggerClass* file) override;
+        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~QuickSort() {
             if(initialized) {
                 delete[] input_data;
@@ -19,6 +19,8 @@ class QuickSort : public Benchmark {
         }
     private:
         Logger::LoggerClass* file;
+        int rounds;
+        int warmup;
         bool initialized = false;
         int size;
         float* input_data;  // random data

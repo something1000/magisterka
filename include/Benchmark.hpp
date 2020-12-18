@@ -3,12 +3,13 @@
 
 #include <memory>
 #include "Logger.hpp"
+#include "rapidjson/document.h"
 
 class Benchmark {
     public:
         virtual void RunSerial() = 0;
         virtual void RunParallel() = 0;
-        virtual void Init(Logger::LoggerClass* file) = 0;
+        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) = 0;
     protected:
         std::string name = "Benchmark";
 };
