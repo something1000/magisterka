@@ -4,30 +4,36 @@
 #include <cstring>
 
 void MatrixMultiplication::RunParallel() {
+    RunParallel_1();
+    RunParallel_2();
+}
+
+void MatrixMultiplication::RunParallel_1() {
     auto excel = *this->file;
 
-    {
-        BENCHMARK_STRUCTURE(
-            excel,                  // name of csv logger
-            "Parallel_Collapse",    // name of benchmark
-            warmup,                 // name of warmup rounds variable
-            rounds,                 // name of benchmark rounds variable
-            ELAPSED_Collapse,       // variable name to store execution time
-            {
-                mpragma(omp parallel for collapse(2) schedule(static)) // static as every thread have same work to do
-                for(int i=0; i < N; i++) {
-                    for(int j=0; j < N; j++) {
-                        result[i][j] = 0.0f;
-                        for(int k=0; k < M; k++) {
-                            result[i][j] += sourceA[i][k] * sourceB[k][j];
-                        }
+    BENCHMARK_STRUCTURE(
+        excel,                  // name of csv logger
+        "Parallel_Collapse",    // name of benchmark
+        warmup,                 // name of warmup rounds variable
+        rounds,                 // name of benchmark rounds variable
+        ELAPSED_Collapse,       // variable name to store execution time
+        {
+            mpragma(omp parallel for collapse(2) schedule(static)) // static as every thread have same work to do
+            for(int i=0; i < N; i++) {
+                for(int j=0; j < N; j++) {
+                    result[i][j] = 0.0f;
+                    for(int k=0; k < M; k++) {
+                        result[i][j] += sourceA[i][k] * sourceB[k][j];
                     }
                 }
             }
-        )
-    }
+        }
+    )
+}
 
-    //TODO rozbic na dwie funkcje
+void MatrixMultiplication::RunParallel_2() {
+    auto excel = *this->file;
+
     // second benchmark without collapse clause
     {
         BENCHMARK_STRUCTURE(

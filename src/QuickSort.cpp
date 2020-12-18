@@ -5,6 +5,7 @@
 #include <functional>
 
 // TODO: replace lambdas to functions
+//TODO add final clause benchmark
 
 float PartitionArray(float *array, int left, int right) {
     int partitionIndex = left + (right - left) / 2;

@@ -10,6 +10,8 @@ class MatrixMultiplication : public Benchmark {
         };
         virtual void RunSerial() override;
         virtual void RunParallel() override;
+        void RunParallel_1();
+        void RunParallel_2();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~MatrixMultiplication() {
             if(initialized) {
