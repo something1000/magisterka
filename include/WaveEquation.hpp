@@ -13,7 +13,7 @@ class WaveEquation : public Benchmark {
         virtual void RunParallel_1();
         virtual void RunParallel_2();
         virtual void RunParallel() override;
-        virtual void Init(Logger::LoggerClass* file) override;
+        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~WaveEquation() {
             if(initialized) {
                 Free3DArray<double>(waves);
@@ -21,6 +21,8 @@ class WaveEquation : public Benchmark {
         }
     private:
         Logger::LoggerClass* file;
+        int rounds;
+        int warmup;
         bool initialized = false;
         
         double v, a, b, q, w;

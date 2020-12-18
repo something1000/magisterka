@@ -10,7 +10,7 @@ class BatchNorm : public Benchmark {
         };
         virtual void RunSerial() override;
         virtual void RunParallel() override;
-        virtual void Init(Logger::LoggerClass* file) override;
+        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~BatchNorm() {
             if(initialized) {
                 Free4DArray(input_data);
@@ -24,6 +24,8 @@ class BatchNorm : public Benchmark {
     private:
         Logger::LoggerClass* file;
         bool initialized = false;
+        int rounds;
+        int warmup;
         int N,C,H,W;
         Tensor4D<float> input_data;
         Tensor4D<float> output;

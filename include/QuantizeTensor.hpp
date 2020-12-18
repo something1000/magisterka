@@ -13,7 +13,7 @@ class QuantizeTensor : public Benchmark {
         void RunParallel_1();
         void RunParallel_2();
         void RunParallel_3();
-        virtual void Init(Logger::LoggerClass* file) override;
+        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~QuantizeTensor() {
             if(initialized) {
                 delete[] input;
@@ -22,6 +22,8 @@ class QuantizeTensor : public Benchmark {
         }
     private:
         Logger::LoggerClass* file;
+        int rounds;
+        int warmup;
         bool initialized = false;
         int N,C,H,W;
         float scale;

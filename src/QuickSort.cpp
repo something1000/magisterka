@@ -29,8 +29,6 @@ void ParallelQuicksort(float* array, int left, int right) {
 void QuickSort::RunParallel() {
 
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 100;
     int x = 1;
     std::function<void(float*, int, int)> ParallelQuicksort;
     ParallelQuicksort = [&ParallelQuicksort](float *array, int left, int right){
@@ -68,8 +66,7 @@ void QuickSort::RunParallel() {
 void QuickSort::RunSerial() {
 
     auto excel = *this->file;
-    int warmup = 5;
-    int rounds = 100;
+
     int x = 1;
     std::function<void(float*, int, int)> Quicksort;
     Quicksort = [&Quicksort, &x](float *array, int left, int right){
@@ -95,9 +92,13 @@ void QuickSort::RunSerial() {
     // std::cout << "\n\n=============\n\n";
 }
 
-void QuickSort::Init(Logger::LoggerClass* file) {
+void QuickSort::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
-    size = 1000000;
+    rounds = properties["rounds"].GetInt();
+    warmup = properties["warmup"].GetInt();
+    size = properties["size"].GetInt();
+    Logger::INFO << VAR(size);
+
     input_data = new float[size];
     data = new float[size];
     FillRandomArray(input_data, size);

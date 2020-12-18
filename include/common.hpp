@@ -16,6 +16,7 @@
 #include <rapidjson/istreamwrapper.h>
 
 #define PUT_BENCHMARK(NAME) {#NAME, std::make_shared<NAME>(#NAME)}
+#define VAR(X) #X":" << X << " "
 
 typedef std::shared_ptr<Benchmark> BenchmarkPtr;
 typedef std::unordered_map<std::string, BenchmarkPtr> BenchmarkMap;

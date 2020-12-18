@@ -6,8 +6,6 @@
 
 void EmptyForLoopBenchmark::RunParallel() {
     auto excel = *this->file;
-    int warmup = 20;
-    int rounds = 10000;
     int dummy = 0;
 
     BENCHMARK_STRUCTURE(
@@ -18,7 +16,7 @@ void EmptyForLoopBenchmark::RunParallel() {
         ELAPSED,    // variable name to store execution time
         {
             mpragma(omp parallel for)
-            for(int i = 0; i < 100000; i++ )
+            for(int i = 0; i < iterations; i++ )
             {
                 LOOP_UNOPTIMIZER(dummy);
             }
@@ -28,8 +26,6 @@ void EmptyForLoopBenchmark::RunParallel() {
 
 void EmptyForLoopBenchmark::RunSerial() {
     auto excel = *this->file;
-    int warmup = 20;
-    int rounds = 10000;
     int dummy=0;
 
     BENCHMARK_STRUCTURE(
@@ -39,7 +35,7 @@ void EmptyForLoopBenchmark::RunSerial() {
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
         {
-            for(int i = 0; i < 100000; i++ )
+            for(int i = 0; i < iterations; i++ )
             {
                 LOOP_UNOPTIMIZER(dummy);
             }
@@ -47,6 +43,9 @@ void EmptyForLoopBenchmark::RunSerial() {
     )
 }
 
-void EmptyForLoopBenchmark::Init(Logger::LoggerClass* file) {
+void EmptyForLoopBenchmark::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
+    rounds = properties["rounds"].GetInt();
+    warmup = properties["warmup"].GetInt();
+    iterations = properties["iterations"].GetInt();
 }

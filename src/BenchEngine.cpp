@@ -24,8 +24,10 @@ void BenchEngine::Start(JsonPtr json) {
         auto benchDescriptor = itr->GetObject();
         auto name = benchDescriptor["name"].GetString();
         auto bench = GetBenchmark(name);
+        const rapidjson::Value& properties = benchDescriptor["properties"];
+
         Logger::INFO << "[" << name << "] " << "Initializing benchmark";
-        bench->Init(&excel);
+        bench->Init(&excel, properties);
         Logger::INFO << "[" << name << "] " << "Starting benchmark";
 
         /* Benchmark Parallel Function With OpenMP */

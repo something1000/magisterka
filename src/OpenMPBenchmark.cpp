@@ -1,39 +1,30 @@
 #include<iostream>
 #include "BenchEngine.hpp"
 #include <memory>
-#include "Benchmark.hpp"
-#include "EmptyForLoopBenchmark.hpp"
-#include "MatrixMultiplication.hpp"
-#include "Convolution2D.hpp"
-#include "QuickSort.hpp"
-#include "BatchNorm.hpp"
-#include "QuantizeTensor.hpp"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include <rapidjson/istreamwrapper.h>
 
-
-static BenchmarkMap AllBenchmarks {
-   //  PUT_BENCHMARK(EmptyForLoopBenchmark),
-   //  PUT_BENCHMARK(MatrixMultiplication),
-   //  PUT_BENCHMARK(Convolution2D),
-   // PUT_BENCHMARK(QuickSort),
-   // PUT_BENCHMARK(BatchNorm),
-    PUT_BENCHMARK(QuantizeTensor)
-};
+using namespace rapidjson;
 
 int main(int argc, char *argv[]) {
-   BenchmarkMap benchmarksToRun;
-   if (argc > 1) { //argument passed
-      for(int i=1; i < argc; i++) {
-         auto name = argv[i];
-         if (AllBenchmarks.find(name) != AllBenchmarks.end()) {
-            BenchmarkPtr b = std::move(AllBenchmarks.at(name));
-            benchmarksToRun.insert_or_assign(name, b);
-         }
-      }
-   } else {
-      benchmarksToRun = AllBenchmarks;
+   if (argc < 2) { //argument passed
+      std::cerr << "Provide descriptors for benchmarks!";
+      return -1;
    }
+   auto file = argv[1];
+   std::ifstream ifs {file};
+   if (!ifs.is_open()) {
+      std::cerr << "Could not open file for reading!\n";
+      return -1;
+   }
+   
+   IStreamWrapper isw {ifs};
+   std::shared_ptr<Document> doc = std::make_shared<Document>();
+   doc->ParseStream( isw );
 
-   BenchEngine::Start(benchmarksToRun);
+   BenchEngine::Start(doc);
 
    return 0;
 }
