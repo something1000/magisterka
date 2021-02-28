@@ -28,6 +28,49 @@ void ParallelQuicksort(float* array, int left, int right) {
 
 }
 void QuickSort::RunParallel() {
+    RunParallel_1();
+    RunParallel_2();
+}
+
+void QuickSort::RunParallel_1() {
+
+    auto excel = *this->file;
+    int x = 1;
+    std::function<void(float*, int, int, int)> ParallelQuicksort;
+    ParallelQuicksort = [&ParallelQuicksort](float *array, int left, int right, int nodes){
+        int nthreads = omp_get_num_threads();
+        if ( left < right ) {
+            float p = PartitionArray(array, left, right);
+            mpragma(omp task default(none) firstprivate(ParallelQuicksort, array, left, p, nodes)){
+                ParallelQuicksort(array, left, p - 1, nodes*2);
+            }
+            mpragma(omp task default(none) firstprivate(ParallelQuicksort, array, right, p, nodes)){
+                ParallelQuicksort(array, p + 1, right, nodes*2);
+            }
+        }
+    };
+
+    BENCHMARK_STRUCTURE(
+        excel,      // name of csv logger
+        "Parallel_final",   // name of benchmark
+        warmup,     // name of warmup rounds variable
+        rounds,     // name of benchmark rounds variable
+        ELAPSED,    // variable name to store execution time
+        {
+            std::memcpy(data, input_data, size * sizeof(float));
+            mpragma(omp parallel shared(data, size)) {
+                mpragma(omp single) {
+                    ParallelQuicksort(data, 0, size-1, 1);
+                }
+                #pragma omp taskwait
+            }
+        }
+   )
+//    Print2DArray(&data, 1, size);
+//    std::cout << "\n\n=============\n\n";
+}
+
+void QuickSort::RunParallel_2() {
 
     auto excel = *this->file;
     int x = 1;
@@ -39,9 +82,9 @@ void QuickSort::RunParallel() {
             mpragma(omp task default(none) firstprivate(ParallelQuicksort, array, left, p)){
                 ParallelQuicksort(array, left, p - 1);
             }
-            mpragma(omp task default(none) firstprivate(ParallelQuicksort, array, right, p)){
+           // mpragma(omp task default(none) firstprivate(ParallelQuicksort, array, right, p)){
                 ParallelQuicksort(array, p + 1, right);
-            }
+           // }
         }
     };
     BENCHMARK_STRUCTURE(
