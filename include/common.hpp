@@ -14,6 +14,7 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include <rapidjson/istreamwrapper.h>
+#include <stdlib.h>
 
 #define PUT_BENCHMARK(NAME) {#NAME, std::make_shared<NAME>(#NAME)}
 #define VAR(X) #X":" << X << " "
@@ -36,7 +37,8 @@ using Tensor2D = T**;
 template<class T>
 T** Create2DArray(int H, int W) {
     T** array2D = new T*[H];
-    T* rawData = new T[H*W];
+    int size = H*W*sizeof(T);
+    T* rawData = (T*) _aligned_malloc(size, 128);//new T[H*W];
 
     for(int i=0; i < H; i++) {
         array2D[i] = rawData;
@@ -50,7 +52,8 @@ template<class T>
 T*** Create3DArray(int C, int H, int W) {
     T*** array3D = new T**[C]; 
     T** array2D = new T*[C*H];
-    T* rawData = new T[C*H*W];
+    int size = C*H*W*sizeof(T);
+    T* rawData = (T*) _aligned_malloc(size, 128);//new T[C*H*W];
 
     for(int i=0; i < C; i++) {
         array3D[i] = array2D;
@@ -69,7 +72,9 @@ T**** Create4DArray(int N, int C, int H, int W) {
     T**** array4D = new T***[N];
     T*** array3D = new T**[N*C]; 
     T** array2D = new T*[N*C*H];
-    T* rawData = new T[N*C*H*W];
+    int size = N*C*H*W*sizeof(T);
+    T* rawData = (T*) _aligned_malloc(size, 128);//new T[N*C*H*W];
+
 
     for(int i=0; i < N; ++i) {
         array4D[i] = array3D;
@@ -149,6 +154,12 @@ inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O) {
     }
 }
 
+inline void PrintArray(float* arr, int N) {
+    for(int i=0; i < N; i++) {
+        std::cout << (float)arr[i] << " ";
+    }
+}
+
 inline void Print2DArray(float** arr, int N, int M) {
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++){
@@ -182,3 +193,4 @@ inline void Print2DArray(float** arr, int N, int M) {
         Logger::INFO << _Mode << " Warmup:" << _Warmup \
                      << " Rounds: " << _Rounds << " Time: " << _Elapsed;
 #endif
+// TODO: Wyliczenie odchylenia standardowego
