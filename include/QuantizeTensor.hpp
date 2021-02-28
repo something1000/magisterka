@@ -26,6 +26,7 @@ class QuantizeTensor : public Benchmark {
         int warmup;
         bool initialized = false;
         int N,C,H,W;
+        int static_size;
         float scale;
         int zero_position;
         Tensor4D<float> input;

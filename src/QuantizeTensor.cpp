@@ -24,7 +24,7 @@ void QuantizeTensor::RunParallel_1() {
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
         {
-            mpragma(omp parallel for collapse(4) schedule(static, 100))
+            mpragma(omp parallel for collapse(4) schedule(static, static_size))
             for(int j=0; j < N; ++j) {
                 for(int z=0; z < C; ++z) {
                     for(int k=0; k < H; ++k) {
@@ -51,7 +51,7 @@ void QuantizeTensor::RunParallel_2() {
         ELAPSED,    // variable name to store execution time
         {
             int size = N*C*H*W;
-            mpragma(omp parallel for schedule(static, 100))
+            mpragma(omp parallel for schedule(static, static_size))
             for(int i=0; i < size; i++) {
                 raw_output[i] = static_cast<int8_t>((raw_input[i]/scale) + zero_position);
             }
@@ -109,7 +109,8 @@ void QuantizeTensor::Init(Logger::LoggerClass* file, const rapidjson::Value& pro
     C =  properties["C"].GetInt();
     H =  properties["H"].GetInt();
     W =  properties["W"].GetInt();
-    Logger::INFO << VAR(N) << VAR(C) << VAR(H) << VAR(W);
+    static_size = properties["static_size"].GetInt();
+    Logger::INFO << VAR(N) << VAR(C) << VAR(H) << VAR(W) << VAR(static_size);
     scale = 0.0384f;
     zero_position = 0;
     
