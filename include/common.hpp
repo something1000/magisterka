@@ -38,7 +38,7 @@ template<class T>
 T** Create2DArray(int H, int W) {
     T** array2D = new T*[H];
     int size = H*W*sizeof(T);
-    T* rawData = (T*) _aligned_malloc(size, 128);//new T[H*W];
+    T* rawData = (T*) aligned_alloc(128, size);
 
     for(int i=0; i < H; i++) {
         array2D[i] = rawData;
@@ -53,7 +53,7 @@ T*** Create3DArray(int C, int H, int W) {
     T*** array3D = new T**[C]; 
     T** array2D = new T*[C*H];
     int size = C*H*W*sizeof(T);
-    T* rawData = (T*) _aligned_malloc(size, 128);//new T[C*H*W];
+    T* rawData = (T*) aligned_alloc(128, size);
 
     for(int i=0; i < C; i++) {
         array3D[i] = array2D;
@@ -73,7 +73,7 @@ T**** Create4DArray(int N, int C, int H, int W) {
     T*** array3D = new T**[N*C]; 
     T** array2D = new T*[N*C*H];
     int size = N*C*H*W*sizeof(T);
-    T* rawData = (T*) _aligned_malloc(size, 128);//new T[N*C*H*W];
+    T* rawData = (T*) aligned_alloc(128, size);
 
 
     for(int i=0; i < N; ++i) {
@@ -117,7 +117,7 @@ void Free4DArray(T**** ptr) {
 inline void FillRandomArray(float* arr, int N) {
     std::srand(std::time(nullptr));
     for(int i=0; i < N; i++) {
-        arr[i] = static_cast<float>(std::rand()) / RAND_MAX;
+        arr[i] = static_cast<float>(std::rand()) / (float) RAND_MAX;
     }
 }
 
@@ -125,7 +125,7 @@ inline void FillRandom2DArray(float** arr, int N, int M) {
     std::srand(std::time(nullptr));
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
-            arr[i][j] = static_cast<float>(std::rand()) / RAND_MAX;
+            arr[i][j] = static_cast<float>(std::rand()) / (float) RAND_MAX;
         }
     }
 }
@@ -135,7 +135,7 @@ inline void FillRandom3DArray(float*** arr, int N, int M, int K) {
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
-                arr[i][j][l] = static_cast<float>(std::rand()) / RAND_MAX;
+                arr[i][j][l] = static_cast<float>(std::rand()) / (float) RAND_MAX;
             }
         }
     }
@@ -147,7 +147,7 @@ inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
                  for(int z=0; z < O; z++) {
-                    arr[i][j][l][z] = static_cast<float>(std::rand()) / RAND_MAX;
+                    arr[i][j][l][z] = static_cast<float>(std::rand()) / (float) RAND_MAX;
                  }
             }
         }
