@@ -94,6 +94,6 @@ void MatrixMultiplication::Init(Logger::LoggerClass* file, const rapidjson::Valu
     result  = Create2DArray<float>(N, N);
     FillRandom2DArray(sourceA, N, M);
     FillRandom2DArray(sourceB, M, N);
-    std::memset(result, N*N, 0);
+    std::memset(result, 0, N*N);
     this->initialized = true;
 }

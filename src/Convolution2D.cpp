@@ -144,7 +144,7 @@ void Convolution2D::Init(Logger::LoggerClass* file, const rapidjson::Value& prop
     int res_rows = H - 2 * kernel_center;
     int res_cols = W - 2 * kernel_center;
     result  = Create3DArray<float>(N, res_rows, res_cols);
-    std::memset(result, N * res_rows * res_cols, 0);
+    std::memset(result, 0, N * res_rows * res_cols);
 
     this->initialized = true;
 }
