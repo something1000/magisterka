@@ -62,7 +62,7 @@ void QuickSort::RunParallel_1() {
                 mpragma(omp single) {
                     ParallelQuicksort(data, 0, size-1, 1);
                 }
-                #pragma omp taskwait
+                mpragma(omp taskwait)
             }
         }
    )
@@ -99,7 +99,7 @@ void QuickSort::RunParallel_2() {
                 mpragma(omp single) {
                     ParallelQuicksort(data, 0, size-1);
                 }
-                #pragma omp taskwait
+                mpragma(omp taskwait)
             }
         }
    )
