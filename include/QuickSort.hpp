@@ -10,8 +10,8 @@ class QuickSort : public Benchmark {
         };
         virtual void RunSerial() override;
         virtual void RunParallel() override;
-        void RunParallel_1();
-        void RunParallel_2();
+        void RunParallelSingle();
+        void RunParallelDouble();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~QuickSort() {
             if(initialized) {
