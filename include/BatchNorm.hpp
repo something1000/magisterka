@@ -10,7 +10,6 @@ class BatchNorm : public Benchmark {
         };
         virtual void RunSerial() override;
         virtual void RunParallel() override;
-        void RunParallel();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~BatchNorm() {
             if(initialized) {
