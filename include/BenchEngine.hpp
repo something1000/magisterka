@@ -7,7 +7,7 @@
 #include "Convolution2D.hpp"
 #include "QuickSort.hpp"
 #include "BatchNorm.hpp"
-#include "QuantizeTensor.hpp"
+#include "Activation.hpp"
 #include "CooleyTukeyFFT.hpp"
 #include "WaveEquation.hpp"
  

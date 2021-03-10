@@ -55,8 +55,8 @@ std::shared_ptr<Benchmark> BenchEngine::GetBenchmark(std::string name) {
         ptr = std::make_shared<QuickSort>(name);
     else if (name == "BatchNorm")
         ptr = std::make_shared<BatchNorm>(name);
-    else if (name == "QuantizeTensor")
-        ptr = std::make_shared<QuantizeTensor>(name);
+    else if (name == "Activation")
+        ptr = std::make_shared<Activation>(name);
     else if (name == "CooleyTukeyFFT")
         ptr = std::make_shared<CooleyTukeyFFT>(name);
     else if (name == "WaveEquation")

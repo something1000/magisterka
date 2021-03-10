@@ -1,10 +1,10 @@
-#include "QuantizeTensor.hpp"
+#include "Activation.hpp"
 #include <iostream>
 #include <omp.h>
 #include <cstring>
 #include <functional>
 
-void QuantizeTensor::RunParallel() {
+void Activation::RunParallel() {
     RunParallel_1();
     RunParallel_2();
     RunParallel_3();
@@ -12,11 +12,9 @@ void QuantizeTensor::RunParallel() {
 
 
 
-void QuantizeTensor::RunParallel_1() {
+void Activation::RunParallel_1() {
     auto excel = *this->file;
 
-    float* raw_input = input[0][0][0];
-    int8_t* raw_output = output[0][0][0];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
         "PARALLEL_FOR_COLLAPSE",   // name of benchmark
@@ -29,7 +27,7 @@ void QuantizeTensor::RunParallel_1() {
                 for(int z=0; z < C; ++z) {
                     for(int k=0; k < H; ++k) {
                         for(int p=0; p < W; ++p) {
-                            output[j][z][k][p] = static_cast<int8_t>((input[j][z][k][p]/scale) + zero_position);
+                            output[j][z][k][p] = output[j][z][k][p] > 0 ? output[j][z][k][p] : 0;
                         }
                     }
                 }
@@ -38,11 +36,11 @@ void QuantizeTensor::RunParallel_1() {
    )
 }
 
-void QuantizeTensor::RunParallel_2() {
+void Activation::RunParallel_2() {
     auto excel = *this->file;
 
     float* raw_input = input[0][0][0];
-    int8_t* raw_output = output[0][0][0];
+    float* raw_output = output[0][0][0];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
         "PARALLEL_FOR",   // name of benchmark
@@ -53,18 +51,18 @@ void QuantizeTensor::RunParallel_2() {
             int size = N*C*H*W;
             mpragma(omp parallel for schedule(static, static_size))
             for(int i=0; i < size; i++) {
-                raw_output[i] = static_cast<int8_t>((raw_input[i]/scale) + zero_position);
+                raw_output[i] = raw_input[i] > 0 ? raw_input[i] : 0;
             }
         }
    )
 }
 
 
-void QuantizeTensor::RunParallel_3() {
+void Activation::RunParallel_3() {
     auto excel = *this->file;
 
     float* raw_input = input[0][0][0];
-    int8_t* raw_output = output[0][0][0];
+    float* raw_output = output[0][0][0];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
         "PARALLEL_FOR_SIMD",   // name of benchmark
@@ -75,17 +73,17 @@ void QuantizeTensor::RunParallel_3() {
             int size = N*C*H*W;
             mpragma(omp parallel for simd)
             for(int i=0; i < size; i++) {
-                raw_output[i] = static_cast<int8_t>((raw_input[i]/scale) + zero_position);
+                raw_output[i] = raw_input[i] > 0 ? raw_input[i] : 0;
             }
         }
    )
 }
 
-void QuantizeTensor::RunSerial() {
+void Activation::RunSerial() {
     auto excel = *this->file;
 
     float* raw_input = input[0][0][0];
-    int8_t* raw_output = output[0][0][0];
+    float* raw_output = output[0][0][0];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
         "Serial",   // name of benchmark
@@ -94,13 +92,13 @@ void QuantizeTensor::RunSerial() {
         ELAPSED,    // variable name to store execution time
         {
             for(int i=0; i < N*C*H*W; i++) {
-                raw_output[i] = (raw_input[i]/scale) + zero_position;
+                raw_output[i] = raw_input[i] > 0 ? raw_input[i] : 0;
             }
         }
    )
 }
 
-void QuantizeTensor::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
+void Activation::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
     rounds = properties["rounds"].GetInt();//128;
     warmup = properties["warmup"].GetInt();//128;
@@ -111,11 +109,9 @@ void QuantizeTensor::Init(Logger::LoggerClass* file, const rapidjson::Value& pro
     W =  properties["W"].GetInt();
     static_size = properties["static_size"].GetInt();
     Logger::INFO << VAR(N) << VAR(C) << VAR(H) << VAR(W) << VAR(static_size);
-    scale = 0.0384f;
-    zero_position = 0;
-    
+
     input = Create4DArray<float>(N, C, H, W);
-    output = Create4DArray<int8_t>(N, C, H, W);
+    output = Create4DArray<float>(N, C, H, W);
 
     FillRandomArray(input[0][0][0], N*C*H*W);
     this->initialized = true;

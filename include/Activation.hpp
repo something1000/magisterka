@@ -1,11 +1,11 @@
-#ifndef _QUANTIZETENSOR_HPP
-#define _QUANTIZETENSOR_HPP
+#ifndef _ACTIVATION_HPP
+#define _ACTIVATION_HPP
 #include "Benchmark.hpp"
 #include "common.hpp"
 
-class QuantizeTensor : public Benchmark {
+class Activation : public Benchmark {
     public:
-        QuantizeTensor(std::string name) {
+        Activation(std::string name) {
             this->name = name;
         };
         virtual void RunSerial() override;
@@ -14,7 +14,7 @@ class QuantizeTensor : public Benchmark {
         void RunParallel_2();
         void RunParallel_3();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
-        virtual ~QuantizeTensor() {
+        virtual ~Activation() {
             if(initialized) {
                 delete[] input;
                 delete[] output;
@@ -27,10 +27,8 @@ class QuantizeTensor : public Benchmark {
         bool initialized = false;
         int N,C,H,W;
         int static_size;
-        float scale;
-        int zero_position;
         Tensor4D<float> input;
-        Tensor4D<int8_t> output;
+        Tensor4D<float> output;
 };
 
 #endif
