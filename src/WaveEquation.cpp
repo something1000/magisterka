@@ -204,7 +204,7 @@ void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& prope
     
     //s=X.^2.*(a-X).*Y.^2.*(b-Y);
     Tensor2D<double> s = Create2DArray<double>(M, N);
-    std::memset(s[0], 0, M*N*sizeof(double));
+    std::memset(s[0], 0, M * N *sizeof(double));
 
     for(int i=0; i < M; ++i) {
         for(int j=0; j < N; ++j) { //elemwise
