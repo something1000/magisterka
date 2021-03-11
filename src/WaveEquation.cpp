@@ -17,43 +17,41 @@ void WaveEquation::RunParallel_1() {
     Tensor2D<double> src_1;
     Tensor2D<double> dst;
 
-   { // namespace
-        BENCHMARK_STRUCTURE(
-            excel,      // name of csv logger
-            "Parallel_parallel_outside",   // name of benchmark
-            warmup,     // name of warmup rounds variable
-            rounds,     // name of benchmark rounds variable
-            ELAPSED,    // variable name to store execution time
+    BENCHMARK_STRUCTURE(
+        excel,      // name of csv logger
+        "Parallel_parallel_outside",   // name of benchmark
+        warmup,     // name of warmup rounds variable
+        rounds,     // name of benchmark rounds variable
+        ELAPSED,    // variable name to store execution time
+        {
+            mpragma(omp parallel private(src_2, src_1, dst) shared(waves, M, N)) 
             {
-                mpragma(omp parallel private(src_2, src_1, dst) shared(waves, M, N)) 
-                {
-                    for(int k=0; k < K-1; k++) {
-                        //mpragma(omp master) {
-                            src_2 = waves[k % 3]; //
-                            src_1 = waves[(k + 1) % 3];
-                            dst  = waves[(k + 2) % 3];
-                       // }
-                        //mpragma(omp barrier)
-                        mpragma(omp for schedule(static, 5))
-                        for(int i=1; i < M-1; i++) {
-                            for(int j=1; j < N-1; j++) {
-                                // z tlumieniem
-                                // dst[i][j] = 2.0 / q * (1 - px - py)* src[k][i][j]      // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
-                                //                 + px * (src[k][i+1][j] + src[k][i-1][j])/q  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))/q
-                                //                 + py * (src[k][i][j+1] + src[k][i][j-1])/q  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k))/q
-                                //                 - w*wave[k-1][i][j]/q;                        // w*f(2:M-1,2:N-1,k-1)/q
-                                // bez tlumienia
-                                dst[i][j] = 2.0 * (1 - px - py)* src_1[i][j]             // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
-                                                + px * (src_1[i+1][j] + src_1[i-1][j])  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))
-                                                + py * (src_1[i][j+1] + src_1[i][j-1])  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k)
-                                                - src_2[i][j];                        // f(2:M-1,2:N-1,k-1)
-                            }
+                for(int k=0; k < K-1; k++) {
+                    //mpragma(omp master) {
+                        src_2 = waves[k % 3]; //
+                        src_1 = waves[(k + 1) % 3];
+                        dst  = waves[(k + 2) % 3];
+                    // }
+                    //mpragma(omp barrier)
+                    mpragma(omp for schedule(static, static_size))
+                    for(int i=1; i < M-1; i++) {
+                        for(int j=1; j < N-1; j++) {
+                            // z tlumieniem
+                            // dst[i][j] = 2.0 / q * (1 - px - py)* src[k][i][j]      // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
+                            //                 + px * (src[k][i+1][j] + src[k][i-1][j])/q  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))/q
+                            //                 + py * (src[k][i][j+1] + src[k][i][j-1])/q  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k))/q
+                            //                 - w*wave[k-1][i][j]/q;                        // w*f(2:M-1,2:N-1,k-1)/q
+                            // bez tlumienia
+                            dst[i][j] = 2.0 * (1 - px - py)* src_1[i][j]             // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
+                                            + px * (src_1[i+1][j] + src_1[i-1][j])  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))
+                                            + py * (src_1[i][j+1] + src_1[i][j-1])  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k)
+                                            - src_2[i][j];                        // f(2:M-1,2:N-1,k-1)
                         }
-                  }
+                    }
                 }
             }
-        )
-   }
+        }
+    )
 
 }
 
@@ -79,7 +77,7 @@ void WaveEquation::RunParallel_2() {
                 src_1 = waves[(k + 1) % 3];
                 dst  = waves[(k + 2) % 3];
 
-                mpragma(omp parallel for schedule(static, 5))
+                mpragma(omp parallel for schedule(static, static_size))
                 for(int i=1; i < M-1; i++) {
                     for(int j=1; j < N-1; j++) {
                         // z tlumieniem
@@ -151,6 +149,7 @@ void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& prope
     M = properties["M"].GetInt();
     N = properties["N"].GetInt();
     K = properties["K"].GetInt();
+    static_size = properties["static_size"].GetInt();
     Logger::INFO << VAR(M) << VAR(N) << VAR(K);
 
     double* x = new double[M]; //linspace(0,a,M); // utworz M elementów od 0 do a z równym odstępem

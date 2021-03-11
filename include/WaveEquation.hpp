@@ -26,7 +26,7 @@ class WaveEquation : public Benchmark {
         bool initialized = false;
         
         double v, a, b, q, w;
-        int M, N, K, beta;
+        int M, N, K, beta, static_size;
         double dx, dy, dt, px, py;
 
         Tensor3D<double> waves;
