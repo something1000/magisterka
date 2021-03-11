@@ -2,11 +2,14 @@
 #define _COMMON_HPP
 
 #include <assert.h>
-#include <iostream>
-#include <fstream>
-#include <memory>
+#include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <numeric>
+#include <stdlib.h>
 #include <unordered_map>
 #include "Benchmark.hpp"
 #include "Logger.hpp"
@@ -14,7 +17,6 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include <rapidjson/istreamwrapper.h>
-#include <stdlib.h>
 
 #define PUT_BENCHMARK(NAME) {#NAME, std::make_shared<NAME>(#NAME)}
 #define VAR(X) #X":" << X << " "
@@ -169,14 +171,24 @@ inline void Print2DArray(float** arr, int N, int M) {
     }
 }
 
+inline double VecMean(const std::vector<double>& vec) {
+    double sum = std::accumulate(vec.begin(), vec.end(), 0.0);
+    return sum / vec.size();
+}
 
-#define TIME(name) auto name = omp_get_wtime(); 
+inline double VecStdDev(const std::vector<double>& vec) {
+    double mean = VecMean(vec);
+    double square_sum = std::inner_product(vec.begin(), vec.end(), vec.begin(), 0.0);
+    double stdev = std::sqrt(square_sum / vec.size() - mean * mean);
+    return stdev;
+}
 
 #define LOOP_UNOPTIMIZER(var) __asm__ volatile("" : "+g" (var) : :);
 
 #define mpragma(...)  _Pragma(#__VA_ARGS__)
 
 #define BENCHMARK_STRUCTURE(_Excel, _Mode, _Warmup, _Rounds, _Elapsed, ...)                       \
+        std::vector<double> durations(_Rounds);                                                   \
         int unoptimizer = 0;                                                                      \
         for(int warmup_i=0; warmup_i < _Warmup; warmup_i++){                                      \
             {__VA_ARGS__}                                                                         \
@@ -184,13 +196,19 @@ inline void Print2DArray(float** arr, int N, int M) {
         }                                                                                         \
         auto start = omp_get_wtime();                                                             \
         for(int round_i=0; round_i < _Rounds; round_i++){                                         \
+            auto start_iter = omp_get_wtime();                                                    \
             {__VA_ARGS__}                                                                         \
             LOOP_UNOPTIMIZER(unoptimizer)                                                         \
+            auto end_iter = omp_get_wtime();                                                      \
+            durations[round_i] = end_iter - start_iter;                                           \
         }                                                                                         \
         auto end = omp_get_wtime();                                                               \
-        auto _Elapsed = end - start;                                                              \
-        _Excel << this->name  << _Mode << _Warmup << _Rounds << _Elapsed;                         \
-        Logger::INFO << _Mode << " Warmup:" << _Warmup \
-                     << " Rounds: " << _Rounds << " Time: " << _Elapsed;
+        double _Elapsed = end - start;                                                            \
+        double Mean = VecMean(durations);                                                         \
+        double StdDev = VecStdDev(durations);                                                     \
+        _Excel << this->name  << _Mode << _Warmup << _Rounds << _Elapsed << Mean << StdDev;       \
+        Logger::INFO << _Mode << " Warmup:" << _Warmup                                            \
+                     << " Rounds: " << _Rounds << " Time: " << _Elapsed                           \
+                     << " Mean: " << Mean << " StdDev: " << StdDev;
 #endif
 // TODO: Wyliczenie odchylenia standardowego
