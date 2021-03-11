@@ -25,7 +25,7 @@ class MatrixMultiplication : public Benchmark {
         int rounds;
         int warmup;
         bool initialized = false;
-        int N, M;
+        int N, M, K;
         float** sourceA;
         float** sourceB;
         float** result;

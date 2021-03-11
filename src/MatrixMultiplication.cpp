@@ -69,10 +69,10 @@ void MatrixMultiplication::RunSerial() {
         ELAPSED,    // variable name to store execution time
         {
             for(int i=0; i < N; i++) {
-                for(int j=0; j < N; j++) {
+                for(int j=0; j < K; j++) {
                     result[i][j] = 0.0f;
-                    for(int k=0; k < M; k++) {
-                        result[i][j] += sourceA[i][k] * sourceB[k][j];
+                    for(int c=0; c < M; c++) {
+                        result[i][j] += sourceA[i][c] * sourceB[c][j];
                     }
                 }
             }
@@ -85,16 +85,17 @@ void MatrixMultiplication::Init(Logger::LoggerClass* file, const rapidjson::Valu
     warmup = properties["warmup"].GetInt();
     N = properties["N"].GetInt();
     M = properties["M"].GetInt();
-    Logger::INFO << VAR(N) << VAR(M);
+    K = properties["K"].GetInt();
+    Logger::INFO << VAR(N) << VAR(M) << VAR(K);
 
     // Create contingouse memory arrays
-    // NxM * MxN = NxN
+    // NxM * MxK = NxK
     sourceA = Create2DArray<float>(N, M);
-    sourceB = Create2DArray<float>(M, N);
-    result  = Create2DArray<float>(N, N);
+    sourceB = Create2DArray<float>(M, K);
+    result  = Create2DArray<float>(N, K);
     FillRandom2DArray(sourceA, N, M);
-    FillRandom2DArray(sourceB, M, N);
+    FillRandom2DArray(sourceB, M, K);
     float* raw_result_ptr = result[0];
-    std::memset(raw_result_ptr, 0, N * N *sizeof(float));
+    std::memset(raw_result_ptr, 0, N * K * sizeof(float));
     this->initialized = true;
 }
