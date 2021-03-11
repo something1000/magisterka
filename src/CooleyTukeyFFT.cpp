@@ -69,7 +69,7 @@ void CTFFT_Parallel_final(float* x, std::complex<double>* out, int N, int nodes)
     }
     
     mpragma(omp task default(none) firstprivate(x, out, N, nodes) final(nodes >= nthreads)) {
-        CTFFT_Parallel_final(x+nodes, out + N/2, N/2, 2*nodes);
+        CTFFT_Parallel_final(x+nodes, out + N/2, N/2, 2*nodes + 1);
     }
     mpragma(omp taskwait)
 
@@ -95,7 +95,7 @@ void CTFFT_Parallel_single(float* x, std::complex<double>* out, int N, int nodes
     mpragma(omp task default(none) firstprivate(x, out, N, nodes) final(nodes >= nthreads)) {
         CTFFT_Parallel_single(x, out, N/2, 2*nodes);
     }
-    CTFFT_Parallel_single(x+nodes, out + N/2, N/2, 2*nodes);
+    CTFFT_Parallel_single(x+nodes, out + N/2, N/2, 2*nodes + 1);
     
     mpragma(omp taskwait)
 
