@@ -8,19 +8,22 @@ class Activation : public Benchmark {
         Activation(std::string name) {
             this->name = name;
         };
+        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual void RunSerial() override;
         virtual void RunParallel() override;
         void RunParallel_1();
         void RunParallel_2();
         void RunParallel_3();
-        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
+        virtual bool Validate();
         virtual ~Activation() {
             if(initialized) {
-                delete[] input;
-                delete[] output;
+                Free4DArray<float>(input);
+                Free4DArray<float>(output);
             }
         }
     private:
+        void Reinitialize();
+
         Logger::LoggerClass* file;
         int rounds;
         int warmup;
