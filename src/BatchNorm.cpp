@@ -7,7 +7,6 @@
 
 #define EPS 0.00000001f
 
-//TODO: check icc vectorization raport
 void BatchNorm::RunParallel() {
     auto excel = *this->file;
 
@@ -32,11 +31,10 @@ void BatchNorm::RunParallel() {
 
                 mpragma(omp for reduction(+:mean[:C]) collapse(2) schedule(static))
                 for(int i=0; i < C; ++i) {
-                    for(int j=0; j < N; ++j) { //check if N or C should be first
+                    for(int j=0; j < N; ++j) {
                         for(int k=0; k < H; ++k) {
                             for(int p=0; p < W; ++p) {
                                 mean[i] += input_raw[i*H*W + j*C*H*W + k*W + p];
-                                //assert(&(input_data[j][i][k][p]) == &(input_raw[i*H*W + j*C*H*W + k*W + p]));
                             }
                         }
                     }
@@ -54,12 +52,9 @@ void BatchNorm::RunParallel() {
                             for(int p=0; p < W; ++p) {
                                 auto in = input_raw[i*H*W + j*C*H*W + k*W + p];
                                 variance[i] += (in - mean[i]) * (in - mean[i]);
-                                //assert(&(input_data[j][i][k][p]) == &(input_raw[i*H*W + j*C*H*W + k*W + p]));
-                                //x_hat[j][i][k][p] = input[j][i][k][p] - mean[i];
                             }
                         }
                     }
-            //      variance[i] = var_i / (1.0f*(N*H*W));
                 }
 
                 mpragma(omp for)
@@ -81,12 +76,7 @@ void BatchNorm::RunParallel() {
             }
         }
     )
-//    for(int i=0; i < N; ++i) {
-//        for(int j=0; j < C; ++j) {
-//            Print2DArray(output[i][j], H, W);
-//            std::cout << std::endl;
-//        }
-//    }
+   delete[] norm_divider;
 }
 
 
@@ -116,7 +106,6 @@ void BatchNorm::RunSerial() {
                     for(int k=0; k < H; ++k) {
                         for(int p=0; p < W; ++p) {
                             mean[i] += input_raw[i*H*W + j*C*H*W + k*W + p];
-                            //assert(&(input_data[j][i][k][p]) == &(input_raw[i*H*W + j*C*H*W + k*W + p]));
                         }
                     }
                 }
@@ -133,12 +122,9 @@ void BatchNorm::RunSerial() {
                         for(int p=0; p < W; ++p) {
                             auto in = input_raw[i*H*W + j*C*H*W + k*W + p];
                             variance[i] += (in - mean[i]) * (in - mean[i]);
-                            //assert(&(input_data[j][i][k][p]) == &(input_raw[i*H*W + j*C*H*W + k*W + p]));
-                            //x_hat[j][i][k][p] = input[j][i][k][p] - mean[i];
                         }
                     }
                 }
-        //      variance[i] = var_i / (1.0f*(N*H*W));
             }
 
             for(int i=0; i < C; ++i) {
@@ -157,12 +143,29 @@ void BatchNorm::RunSerial() {
             }
         }
    )
-//     for(int i=0; i < N; ++i) {
-//        for(int j=0; j < C; ++j) {
-//            Print2DArray(output[i][j], H, W);
-//            std::cout << std::endl;
-//        }
-//    }
+   delete[] norm_divider;
+}
+
+bool BatchNorm::Validate() {
+    Tensor4D<float> out_serial = Create4DArray<float>(N, C, H, W);
+    Tensor4D<float> out_parallel = Create4DArray<float>(N, C, H, W);
+    rounds = 1;
+    warmup = 0;
+
+    Tensor4D<float> tmp = output;
+
+    output = out_serial;
+    RunSerial();
+
+    output = out_parallel;
+    RunParallel();
+
+    bool is_valid = Compare4DArray(out_serial, out_parallel, N, C, H, W);
+
+    output = tmp;
+    Free4DArray<float>(out_serial);
+    Free4DArray<float>(out_parallel);
+    return is_valid;
 }
 
 void BatchNorm::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
@@ -177,17 +180,29 @@ void BatchNorm::Init(Logger::LoggerClass* file, const rapidjson::Value& properti
     W = properties["W"].GetInt();
     Logger::INFO << VAR(N) << VAR(C) << VAR(H) << VAR(W);
 
+    Reinitialize();
+}
+
+void BatchNorm::Reinitialize() {
+    if(initialized) {
+        Free4DArray(input_data);
+        Free4DArray(output);
+        delete[] mean;
+        delete[] variance;
+        delete[] gamma;
+        delete[] beta;
+    }
+
     input_data = Create4DArray<float>(N, C, H, W);
     FillRandom4DArray(input_data, N, C, H, W);
     gamma = new float[C];
     beta = new float[C];
     output = Create4DArray<float>(N, C, H, W);
-    mean = new float[C]; //Create3DArray<float>(C, H, W);
-    variance = new float[C]; //Create3DArray<float>(C, H, W);
+    mean = new float[C];
+    variance = new float[C];
 
 
     FillRandomArray(gamma, C);
     FillRandomArray(beta, C);
-    //gamma[0] = 0.1f; gamma[1] = 0.2f; gamma[2] = 0.3f;
-    //beta[0] = 0.01f; beta[1] = 0.02f; beta[2] = 0.03f;
+    initialized = true;
 }

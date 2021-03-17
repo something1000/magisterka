@@ -8,9 +8,10 @@ class BatchNorm : public Benchmark {
         BatchNorm(std::string name) {
             this->name = name;
         };
+        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual void RunSerial() override;
         virtual void RunParallel() override;
-        virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
+        virtual bool Validate();
         virtual ~BatchNorm() {
             if(initialized) {
                 Free4DArray(input_data);
@@ -22,6 +23,8 @@ class BatchNorm : public Benchmark {
             }
         }
     private:
+        void Reinitialize();
+
         Logger::LoggerClass* file;
         bool initialized = false;
         int rounds;
