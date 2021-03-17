@@ -77,6 +77,36 @@ void MatrixMultiplication::RunSerial() {
         }
     )
 }
+
+bool MatrixMultiplication::Validate() {
+    Tensor2D<float> out_serial = Create2DArray<float>(N, K);
+    Tensor2D<float> out_parallel_2 = Create2DArray<float>(N, K);
+    Tensor2D<float> out_parallel_1 = Create2DArray<float>(N, K);
+    rounds = 1;
+    warmup = 0;
+
+    Tensor2D<float> tmp = result;
+
+    result = out_serial;
+    RunSerial();
+
+    result = out_parallel_1;
+    RunParallel_1();
+
+    result = out_parallel_2;
+    RunParallel_2();
+
+    bool is_valid = Compare2DArray(out_serial, out_parallel_1, N, K);
+    is_valid = is_valid && Compare2DArray(out_serial, out_parallel_2, N, K);
+
+    result = tmp;
+    Free2DArray<float>(out_serial);
+    Free2DArray<float>(out_parallel_1);
+    Free2DArray<float>(out_parallel_2);
+    return is_valid;
+}
+
+
 void MatrixMultiplication::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
     rounds = properties["rounds"].GetInt();
@@ -86,6 +116,15 @@ void MatrixMultiplication::Init(Logger::LoggerClass* file, const rapidjson::Valu
     K = properties["K"].GetInt();
     Logger::INFO << VAR(N) << VAR(M) << VAR(K);
 
+    Reinitialize();
+}
+
+void MatrixMultiplication::Reinitialize() {
+    if(initialized) {
+        Free2DArray<float>(sourceA);
+        Free2DArray<float>(sourceB);
+        Free2DArray<float>(result);
+    }
     // Create contingouse memory arrays
     // NxM * MxK = NxK
     sourceA = Create2DArray<float>(N, M);

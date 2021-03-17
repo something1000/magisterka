@@ -36,10 +36,19 @@ using Tensor3D = T***;
 template <class T>
 using Tensor2D = T**;
 
+
+inline int CalcAlignedSize(int size, int alignment=128) {
+    if (size % alignment == 0)
+        return size;
+    
+    int aligned_size = size + (alignment - (size % alignment));
+    return aligned_size;
+}
+
 template<class T>
 T** Create2DArray(int H, int W) {
     T** array2D = new T*[H];
-    int size = H*W*sizeof(T);
+    int size = CalcAlignedSize(H*W*sizeof(T));
     T* rawData = (T*) aligned_alloc(128, size);
 
     for(int i=0; i < H; i++) {
@@ -54,7 +63,7 @@ template<class T>
 T*** Create3DArray(int C, int H, int W) {
     T*** array3D = new T**[C]; 
     T** array2D = new T*[C*H];
-    int size = C*H*W*sizeof(T);
+    int size = CalcAlignedSize(C*H*W*sizeof(T));
     T* rawData = (T*) aligned_alloc(128, size);
 
     for(int i=0; i < C; i++) {
@@ -74,7 +83,7 @@ T**** Create4DArray(int N, int C, int H, int W) {
     T**** array4D = new T***[N];
     T*** array3D = new T**[N*C]; 
     T** array2D = new T*[N*C*H];
-    int size = N*C*H*W*sizeof(T);
+    int size = CalcAlignedSize(N*C*H*W*sizeof(T));
     T* rawData = (T*) aligned_alloc(128, size);
 
 
@@ -154,6 +163,20 @@ inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O) {
             }
         }
     }
+}
+
+inline bool Compare2DArray(float** arr1, float** arr2, int N, int M, float eps=0.01) {
+    bool result = true;
+    for(int i=0; i < N; i++) {
+        for(int j=0; j < M; j++) {
+            if(std::abs( (arr1[i][j] - arr2[i][j])/arr1[i][j] > eps )){
+                Logger::ERROR << "Error exceeds epsilon: arr1[" << i << "][" << j << "] = " << arr1[i][j]
+                              << " and arr2[" << i << "][" << j << "] = " << arr2[i][j];
+                result = false;
+            }
+        }
+    }
+    return result;
 }
 
 inline void PrintArray(float* arr, int N) {

@@ -12,6 +12,7 @@ class MatrixMultiplication : public Benchmark {
         virtual void RunParallel() override;
         void RunParallel_1();
         void RunParallel_2();
+        virtual bool Validate();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~MatrixMultiplication() {
             if(initialized) {
@@ -21,14 +22,16 @@ class MatrixMultiplication : public Benchmark {
             }
         }
     private:
+        void Reinitialize();
+
         Logger::LoggerClass* file;
         int rounds;
         int warmup;
         bool initialized = false;
         int N, M, K;
-        float** sourceA;
-        float** sourceB;
-        float** result;
+        Tensor2D<float> sourceA;
+        Tensor2D<float> sourceB;
+        Tensor2D<float> result;
 };
 
 #endif
