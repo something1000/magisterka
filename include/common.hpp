@@ -20,6 +20,7 @@
 
 #define PUT_BENCHMARK(NAME) {#NAME, std::make_shared<NAME>(#NAME)}
 #define VAR(X) #X":" << X << " "
+#define IND(x) "[" << x << "]"
 
 typedef std::shared_ptr<Benchmark> BenchmarkPtr;
 typedef std::unordered_map<std::string, BenchmarkPtr> BenchmarkMap;
@@ -125,54 +126,101 @@ void Free4DArray(T**** ptr) {
 };
 
 
-inline void FillRandomArray(float* arr, int N) {
+inline void FillRandomArray(float* arr, int N, float min=-1, float max=1) {
     std::srand(std::time(nullptr));
     for(int i=0; i < N; i++) {
-        arr[i] = static_cast<float>(std::rand()) / (float) RAND_MAX;
+        arr[i] = (static_cast<float>(std::rand()) / (float) RAND_MAX) * (max - min) + min;
     }
 }
 
-inline void FillRandom2DArray(float** arr, int N, int M) {
+inline void FillRandom2DArray(float** arr, int N, int M, float min=-1, float max=1) {
     std::srand(std::time(nullptr));
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
-            arr[i][j] = static_cast<float>(std::rand()) / (float) RAND_MAX;
+            arr[i][j] = (static_cast<float>(std::rand()) / (float) RAND_MAX) * (max - min) + min;
         }
     }
 }
 
-inline void FillRandom3DArray(float*** arr, int N, int M, int K) {
+inline void FillRandom3DArray(float*** arr, int N, int M, int K, float min=-1, float max=1) {
     std::srand(std::time(nullptr));
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
-                arr[i][j][l] = static_cast<float>(std::rand()) / (float) RAND_MAX;
+                arr[i][j][l] = (static_cast<float>(std::rand()) / (float) RAND_MAX) * (max - min) + min;
             }
         }
     }
 }
 
-inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O) {
+inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O, float min=-1, float max=1) {
     std::srand(std::time(nullptr));
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
                  for(int z=0; z < O; z++) {
-                    arr[i][j][l][z] = static_cast<float>(std::rand()) / (float) RAND_MAX;
+                    arr[i][j][l][z] = (static_cast<float>(std::rand()) / (float) RAND_MAX) * (max - min) + min;
                  }
             }
         }
     }
 }
 
-inline bool Compare2DArray(float** arr1, float** arr2, int N, int M, float eps=0.01) {
+
+inline bool CompareArray(float* arr1, float* arr2, int N, float eps=0.01) {
+    bool result = true;
+    for(int i=0; i < N; i++) {
+        if(std::abs( (arr1[i] - arr2[i])/arr1[i] > eps )) {
+            Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << " = " << arr1[i]
+                          << " and arr2" << IND(i) << " = " << arr2[i];
+            result = false;
+        }
+    }
+    return result;
+}
+
+inline bool Compare2DArray(Tensor2D<float> arr1, Tensor2D<float> arr2, int N, int M, float eps=0.01) {
     bool result = true;
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
-            if(std::abs( (arr1[i][j] - arr2[i][j])/arr1[i][j] > eps )){
-                Logger::ERROR << "Error exceeds epsilon: arr1[" << i << "][" << j << "] = " << arr1[i][j]
-                              << " and arr2[" << i << "][" << j << "] = " << arr2[i][j];
+            if(std::abs( (arr1[i][j] - arr2[i][j])/arr1[i][j] > eps )) {
+                Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << " = " << arr1[i][j]
+                              << " and arr2" << IND(i) << IND(j) << " = " << arr2[i][j];
                 result = false;
+            }
+        }
+    }
+    return result;
+}
+
+inline bool Compare3DArray(Tensor3D<float> arr1, Tensor3D<float> arr2, int N, int M, int K, float eps=0.01) {
+    bool result = true;
+    for(int i=0; i < N; i++) {
+        for(int j=0; j < M; j++) {
+            for(int l=0; l < K; l++) {
+                if(std::abs( (arr1[i][j][l] - arr2[i][j][l])/arr1[i][j][l] > eps )) {
+                    Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << IND(l) << " = " << arr1[i][j][l]
+                                    << " and arr2" << IND(i) << IND(j) << IND(l) << " = " << arr2[i][j][l];
+                    result = false;
+                }
+            }
+        }
+    }
+    return result;
+}
+
+inline bool Compare4DArray(Tensor4D<float> arr1, Tensor4D<float> arr2, int N, int M, int K, int O, float eps=0.01) {
+    bool result = true;
+    for(int i=0; i < N; i++) {
+        for(int j=0; j < M; j++) {
+            for(int l=0; l < K; l++) {
+                 for(int z=0; z < O; z++) {
+                    if(std::abs( (arr1[i][j][l][z] - arr2[i][j][l][z])/arr1[i][j][l][z] > eps )) {
+                        Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << IND(l) << IND(z) << " = " << arr1[i][j][l][z]
+                                      << " and arr2" << IND(i) << IND(j) << IND(l) << IND(z) << " = " << arr2[i][j][l][z];
+                        result = false;
+                    }
+                 }
             }
         }
     }
