@@ -23,22 +23,36 @@ void BenchEngine::Start(JsonPtr json) {
     for (JsonBenchmark itr = json->Begin(); itr != json->End(); ++itr) {
         auto benchDescriptor = itr->GetObject();
         auto name = benchDescriptor["name"].GetString();
+        
+        bool is_validation = false;
+        if (benchDescriptor.FindMember("validate") != benchDescriptor.MemberEnd())
+            is_validation = benchDescriptor["validate"].GetBool();
+
         auto bench = GetBenchmark(name);
         const rapidjson::Value& properties = benchDescriptor["properties"];
 
         Logger::INFO << "[" << name << "] " << "Initializing benchmark";
         bench->Init(&excel, properties);
-        Logger::INFO << "[" << name << "] " << "Starting benchmark";
 
-        /* Benchmark Parallel Function With OpenMP */
-        bench->RunParallel();
-        Logger::INFO << "[" << name << "] " << "Finished parallel benchmark";
+        if(is_validation) {
+            Logger::INFO << "[" << name << "] " << "Starting benchmark validation";
+            if(bench->Validate()) {
+                Logger::INFO << "[" << name << "] " << "Successfully validated";
+            } else {
+                Logger::INFO << "[" << name << "] " << "Validation failed";
+            }
+        } else {
+            Logger::INFO << "[" << name << "] " << "Starting benchmark";
+            /* Benchmark Parallel Function With OpenMP */
+            bench->RunParallel();
+            Logger::INFO << "[" << name << "] " << "Finished parallel benchmark";
 
-        /* Benchmark Serial Function */
-        bench->RunSerial();
-        Logger::INFO << "[" << name << "] " << "Finished serial benchmark";
-        excel.newLine();
-        Logger::INFO << "==============================================================";
+            /* Benchmark Serial Function */
+            bench->RunSerial();
+            Logger::INFO << "[" << name << "] " << "Finished serial benchmark";
+            excel.newLine();
+            Logger::INFO << "==============================================================";
+        }
      }
 }
 

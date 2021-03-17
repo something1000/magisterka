@@ -9,6 +9,9 @@ class Benchmark {
     public:
         virtual void RunSerial() = 0;
         virtual void RunParallel() = 0;
+        virtual bool Validate() {
+            return true;
+        };
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) = 0;
     protected:
         std::string name = "Benchmark";
