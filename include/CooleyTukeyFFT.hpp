@@ -15,6 +15,8 @@ class CooleyTukeyFFT : public Benchmark {
         void RunParallel_Final();
         void RunParallel_Single();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
+        virtual bool Validate();
+
         virtual ~CooleyTukeyFFT() {
             if(initialized) {
                 delete[] input;
@@ -22,12 +24,14 @@ class CooleyTukeyFFT : public Benchmark {
             }
         }
     private:
+        void Reinitialize();
+
         Logger::LoggerClass* file;
         int rounds;
         int warmup; 
         bool initialized = false;
         int size;
-        float* input;
+        double* input;
         std::complex<double>* output;
 };
 
