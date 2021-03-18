@@ -136,6 +136,42 @@ void WaveEquation::RunSerial() {
    )
 }
 
+
+bool WaveEquation::Validate() {
+    Tensor3D<double> out_serial = Create3DArray<double>(3, M, N);
+    Tensor3D<double> out_parallel_1 = Create3DArray<double>(3, M, N);
+    Tensor3D<double> out_parallel_2 = Create3DArray<double>(3, M, N);
+
+    //copy input to out tensors as this operation is inplace
+    memcpy(**out_serial, **waves, 3*M*N*sizeof(double));
+    memcpy(**out_parallel_1, **waves, 3*M*N*sizeof(double));
+    memcpy(**out_parallel_2, **waves, 3*M*N*sizeof(double));
+    
+    rounds = 1;
+    warmup = 0;
+
+    Tensor3D<double> tmp = waves;
+
+    waves = out_serial;
+    RunSerial();
+
+    waves = out_parallel_1;
+    RunParallel_1();
+
+    waves = out_parallel_2;
+    RunParallel_2();
+
+    bool is_valid = Compare3DArray(out_serial, out_parallel_1, 3, M, N);
+    is_valid &= Compare3DArray(out_serial, out_parallel_2, 3, M, N);
+
+    waves = tmp;
+    Free3DArray<double>(out_serial);
+    Free3DArray<double>(out_parallel_1);
+    Free3DArray<double>(out_parallel_2);
+
+    return is_valid;
+}
+
 void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
 
@@ -151,6 +187,16 @@ void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& prope
     K = properties["K"].GetInt();
     static_size = properties["static_size"].GetInt();
     Logger::INFO << VAR(M) << VAR(N) << VAR(K);
+
+    Reinitialize();
+}
+
+
+void WaveEquation::Reinitialize() {
+    if(initialized) {
+        Free3DArray<double>(waves);
+    }
+
 
     double* x = new double[M]; //linspace(0,a,M); // utworz M elementów od 0 do a z równym odstępem
     double* y = new double[N]; //linspace(0,b,N); // utworz N elementów od 0 do b z równym odstępem
@@ -248,6 +294,5 @@ void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& prope
         }
     }
 
-
-    this->initialized = true;
+    initialized = true;
 }
