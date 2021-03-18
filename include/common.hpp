@@ -167,7 +167,8 @@ inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O, float m
 }
 
 
-inline bool CompareArray(float* arr1, float* arr2, int N, float rtol=0.01, float atol=0.001) {
+template<class T>
+inline bool CompareArray(T* arr1, T* arr2, int N, float rtol=0.01, float atol=0.001) {
     bool result = true;
     for(int i=0; i < N; i++) {
         if(std::abs( (arr1[i] - arr2[i])/arr1[i]) > rtol
@@ -180,7 +181,8 @@ inline bool CompareArray(float* arr1, float* arr2, int N, float rtol=0.01, float
     return result;
 }
 
-inline bool Compare2DArray(Tensor2D<float> arr1, Tensor2D<float> arr2, int N, int M, float rtol=0.01, float atol=0.001) {
+template<class T>
+inline bool Compare2DArray(Tensor2D<T> arr1, Tensor2D<T> arr2, int N, int M, float rtol=0.01, float atol=0.001) {
     bool result = true;
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
@@ -195,13 +197,14 @@ inline bool Compare2DArray(Tensor2D<float> arr1, Tensor2D<float> arr2, int N, in
     return result;
 }
 
-inline bool Compare3DArray(Tensor3D<float> arr1, Tensor3D<float> arr2, int N, int M, int K, float rtol=0.01, float atol=0.001) {
+template<class T>
+inline bool Compare3DArray(Tensor3D<T> arr1, Tensor3D<T> arr2, int N, int M, int K, float rtol=0.01, float atol=0.001) {
     bool result = true;
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
                if(std::abs( (arr1[i][j][l] - arr2[i][j][l])/arr1[i][j][l]) > rtol
-                  && std::abs(arr1[i][j][l] - arr2[i][j][l]) > atol) {
+                 && std::abs(arr1[i][j][l] - arr2[i][j][l]) > atol) {
                     Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << IND(l) << " = " << arr1[i][j][l]
                                     << " and arr2" << IND(i) << IND(j) << IND(l) << " = " << arr2[i][j][l];
                     result = false;
@@ -212,7 +215,8 @@ inline bool Compare3DArray(Tensor3D<float> arr1, Tensor3D<float> arr2, int N, in
     return result;
 }
 
-inline bool Compare4DArray(Tensor4D<float> arr1, Tensor4D<float> arr2, int N, int M, int K, int O, float rtol=0.01, float atol=0.0004) {
+template<class T>
+inline bool Compare4DArray(Tensor4D<T> arr1, Tensor4D<T> arr2, int N, int M, int K, int O, float rtol=0.01, float atol=0.0004) {
     bool result = true;
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
