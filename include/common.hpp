@@ -170,7 +170,7 @@ inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O, float m
 inline bool CompareArray(float* arr1, float* arr2, int N, float rtol=0.01, float atol=0.001) {
     bool result = true;
     for(int i=0; i < N; i++) {
-        if(std::abs( (arr1[i] - arr2[i])/arr1[i] > rtol )
+        if(std::abs( (arr1[i] - arr2[i])/arr1[i]) > rtol
            && std::abs(arr1[i] - arr2[i]) > atol) {
             Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << " = " << arr1[i]
                           << " and arr2" << IND(i) << " = " << arr2[i];
@@ -184,7 +184,7 @@ inline bool Compare2DArray(Tensor2D<float> arr1, Tensor2D<float> arr2, int N, in
     bool result = true;
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
-            if(std::abs( (arr1[i][j] - arr2[i][j])/arr1[i][j] > rtol )
+            if(std::abs( (arr1[i][j] - arr2[i][j])/arr1[i][j]) > rtol
                && std::abs(arr1[i][j] - arr2[i][j]) > atol) {
                 Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << " = " << arr1[i][j]
                               << " and arr2" << IND(i) << IND(j) << " = " << arr2[i][j];
@@ -200,8 +200,8 @@ inline bool Compare3DArray(Tensor3D<float> arr1, Tensor3D<float> arr2, int N, in
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
-                if(std::abs( (arr1[i][j][l] - arr2[i][j][l])/arr1[i][j][l] > rtol )
-                   && std::abs(arr1[i][j][l] - arr2[i][j][l]) > atol) {
+               if(std::abs( (arr1[i][j][l] - arr2[i][j][l])/arr1[i][j][l]) > rtol
+                  && std::abs(arr1[i][j][l] - arr2[i][j][l]) > atol) {
                     Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << IND(l) << " = " << arr1[i][j][l]
                                     << " and arr2" << IND(i) << IND(j) << IND(l) << " = " << arr2[i][j][l];
                     result = false;
@@ -218,7 +218,7 @@ inline bool Compare4DArray(Tensor4D<float> arr1, Tensor4D<float> arr2, int N, in
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
                  for(int z=0; z < O; z++) {
-                    if(std::abs( (arr1[i][j][l][z] - arr2[i][j][l][z])/arr1[i][j][l][z] > rtol )
+                    if(std::abs( (arr1[i][j][l][z] - arr2[i][j][l][z])/arr1[i][j][l][z]) > rtol
                        && std::abs(arr1[i][j][l][z] - arr2[i][j][l][z]) > atol) {
                         Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << IND(l) << IND(z) << " = " << arr1[i][j][l][z]
                                       << " and arr2" << IND(i) << IND(j) << IND(l) << IND(z) << " = " << arr2[i][j][l][z];
