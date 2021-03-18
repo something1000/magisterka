@@ -13,6 +13,7 @@ class Convolution2D : public Benchmark {
         void RunParallel_1();
         void RunParallel_2();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
+        virtual bool Validate();
         virtual ~Convolution2D() {
             if(initialized) {
                 Free3DArray<float>(input_data);
@@ -21,6 +22,8 @@ class Convolution2D : public Benchmark {
             }
         }
     private:
+        void Reinitialize();
+
         Logger::LoggerClass* file;
         int rounds;
         int warmup; 

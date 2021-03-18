@@ -119,6 +119,39 @@ void Convolution2D::RunSerial() {
    )
 }
 
+
+bool Convolution2D::Validate() {
+    const int kernel_center = kernel / 2;
+    const int res_rows = H - 2 * kernel_center;
+    const int res_cols = W - 2 * kernel_center;
+    Tensor3D<float> out_serial = Create3DArray<float>(N, res_rows, res_cols);
+    Tensor3D<float> out_parallel_1 = Create3DArray<float>(N, res_rows, res_cols);
+    Tensor3D<float> out_parallel_2 = Create3DArray<float>(N, res_rows, res_cols);
+    rounds = 1;
+    warmup = 0;
+
+    Tensor3D<float> tmp = result;
+
+    result = out_serial;
+    RunSerial();
+
+    result = out_parallel_1;
+    RunParallel_1();
+
+    result = out_parallel_2;
+    RunParallel_2();
+
+    bool is_valid = Compare3DArray(out_serial, out_parallel_1, N, res_rows, res_cols);
+    is_valid = is_valid && Compare3DArray(out_serial, out_parallel_2, N, res_rows, res_cols);
+
+    result = tmp;
+    Free3DArray<float>(out_serial);
+    Free3DArray<float>(out_parallel_1);
+    Free3DArray<float>(out_parallel_2);
+    return is_valid;
+}
+
+
 void Convolution2D::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
 
@@ -131,19 +164,26 @@ void Convolution2D::Init(Logger::LoggerClass* file, const rapidjson::Value& prop
     kernel = properties["kernel"].GetInt();
 
     Logger::INFO << VAR(N) << VAR(H) << VAR(W) << VAR(kernel);
+    Reinitialize();
+}
+
+void Convolution2D::Reinitialize() {
+    if(initialized) {
+        Free3DArray<float>(input_data);
+        Free2DArray<float>(kernel_data);
+        Free3DArray<float>(result);
+    }
 
     int kernel_center = kernel / 2;
-
-    input_data = Create3DArray<float>(N, H, W);
-    FillRandom3DArray(input_data, N, H, W);
-
-    kernel_data = Create2DArray<float>(kernel, kernel);
-
-    FillRandom2DArray(kernel_data, kernel, kernel);
-
     int res_rows = H - 2 * kernel_center;
     int res_cols = W - 2 * kernel_center;
+
+    input_data = Create3DArray<float>(N, H, W);
+    kernel_data = Create2DArray<float>(kernel, kernel);
     result  = Create3DArray<float>(N, res_rows, res_cols);
+
+    FillRandom3DArray(input_data, N, H, W);
+    FillRandom2DArray(kernel_data, kernel, kernel);
     float* raw_result_ptr = result[0][0];
     std::memset(raw_result_ptr, 0, N * res_rows * res_cols * sizeof(float));
 
