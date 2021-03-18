@@ -13,6 +13,7 @@ class QuickSort : public Benchmark {
         void RunParallelSingle();
         void RunParallelDouble();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
+        virtual bool Validate();
         virtual ~QuickSort() {
             if(initialized) {
                 delete[] input_data;
@@ -20,6 +21,8 @@ class QuickSort : public Benchmark {
             }
         }
     private:
+        void Reinitialize();
+
         Logger::LoggerClass* file;
         int rounds;
         int warmup;

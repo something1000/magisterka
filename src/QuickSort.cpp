@@ -121,12 +121,52 @@ void QuickSort::RunSerial() {
     // std::cout << "\n\n=============\n\n";
 }
 
+bool QuickSort::Validate() {
+    float* out_serial = new float[size];
+    float* out_parallel_1 = new float[size];
+    float* out_parallel_2 = new float[size];
+
+    rounds = 1;
+    warmup = 0;
+
+    float* tmp = data;
+
+    data = out_serial;
+    RunSerial();
+
+    data = out_parallel_1;
+    RunParallelSingle();
+
+    data = out_parallel_2;
+    RunParallelDouble();
+
+    bool is_valid = CompareArray(out_serial, out_parallel_1, size);
+    is_valid &= CompareArray(out_serial, out_parallel_2, size);
+
+    data = tmp;
+    delete[] out_serial;
+    delete[] out_parallel_1;
+    delete[] out_parallel_2;
+
+    return is_valid;
+}
+
 void QuickSort::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
     rounds = properties["rounds"].GetInt();
     warmup = properties["warmup"].GetInt();
     size = properties["size"].GetInt();
     Logger::INFO << VAR(size);
+
+    Reinitialize();
+}
+
+
+void QuickSort::Reinitialize() {
+    if(initialized) {
+        delete[] input_data;
+        delete[] data;
+    }
 
     input_data = new float[size];
     data = new float[size];
