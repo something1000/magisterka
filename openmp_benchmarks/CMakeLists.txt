@@ -1,22 +1,37 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(OpenMPBench)
+
 set(CMAKE_CXX_STANDARD 17)
-
-set(TARGET OpenMPBench)
-
+set(EXECUTABLE OpenMPBench)
 set(CMAKE_BUILD_TYPE Debug)
 
+option(BUILD_OFFLOADING "Build with offloading support" OFF)
 
-#Bring the headers, such as Student.h into the project
+
+#Bring basic benchmarks
 include_directories(include)
 include_directories(3rdparty/rapidjson/include)
 file(GLOB SOURCES "src/*.cpp")
-
-add_executable(${TARGET} ${SOURCES})
+add_executable(${EXECUTABLE} ${SOURCES})
 
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(${TARGET} PUBLIC OpenMP::OpenMP_CXX)
+    target_link_libraries(${EXECUTABLE} PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
-#cmake -rmG "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug ..
+#build offloading benchmarks
+if(BUILD_OFFLOADING)
+    set(OFFLOAD_EXEC OpenMPOffloadBench)
+    file(GLOB OFFLOAD_SOURCE "target/src/*.cpp")
+    add_executable(${OFFLOAD_EXEC} ${OFFLOAD_SOURCE})
+
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        target_compile_options(${OFFLOAD_EXEC} PUBLIC -fopenmp-targets=nvptx64-nvidia-cuda)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(${OFFLOAD_EXEC} PUBLIC -foffload=nvptx-none)
+    endif()
+
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(${OFFLOAD_EXEC} PUBLIC OpenMP::OpenMP_CXX)
+    endif()
+endif()
