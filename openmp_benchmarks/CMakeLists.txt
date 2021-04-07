@@ -28,8 +28,8 @@ if(BUILD_OFFLOADING)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_C_FLAGS} -fopenmp-targets=nvptx64-nvidia-cuda -Xopenmp-target -march=sm_61")
         set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}  -fopenmp-targets=nvptx64-nvidia-cuda -Xopenmp-target -march=sm_61")
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_C_FLAGS} -foffload=nvptx-none")
-        set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -foffload=nvptx-none")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_C_FLAGS} -foffload=nvptx-none  -foffload=-lm -fno-fast-math -fno-associative-math")
+        set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -foffload=nvptx-none  -foffload=-lm -fno-fast-math -fno-associative-math")
     endif()
 
 
