@@ -17,6 +17,7 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include <rapidjson/istreamwrapper.h>
+#include <omp.h>
 
 #define PUT_BENCHMARK(NAME) {#NAME, std::make_shared<NAME>(#NAME)}
 #define VAR(X) #X":" << X << " "
@@ -289,5 +290,31 @@ inline double VecStdDev(const std::vector<double>& vec) {
         Logger::INFO << _Mode << " Warmup:" << _Warmup                                            \
                      << " Rounds: " << _Rounds << " Time: " << _Elapsed                           \
                      << " Mean: " << Mean << " StdDev: " << StdDev;
+
+
+template<typename Func>
+inline void BenchmarkIt(Logger::LoggerClass& file, std::string mode, int warmup, int rounds, Func func) {
+        std::vector<double> durations(rounds);
+        int unoptimizer = 0;
+        for(int warmup_i=0; warmup_i < warmup; warmup_i++){
+            func();
+            LOOP_UNOPTIMIZER(unoptimizer)
+        }
+        double start = omp_get_wtime();
+        for(int round_i=0; round_i < rounds; round_i++){
+            double start_iter = omp_get_wtime();
+            func();
+            LOOP_UNOPTIMIZER(unoptimizer)
+            double end_iter = omp_get_wtime();
+            durations[round_i] = end_iter - start_iter;
+        }
+        double end = omp_get_wtime();
+        double _Elapsed = end - start;
+        double Mean = VecMean(durations);
+        double StdDev = VecStdDev(durations);
+        file  << mode << warmup << rounds << _Elapsed << Mean << StdDev;
+        Logger::INFO << mode << " Warmup:" << warmup
+                     << " Rounds: " << rounds << " Time: " << _Elapsed
+                     << " Mean: " << Mean << " StdDev: " << StdDev;
+}
 #endif
-// TODO: Wyliczenie odchylenia standardowego
