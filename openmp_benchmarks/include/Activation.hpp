@@ -14,7 +14,7 @@ class Activation : public Benchmark {
         void RunParallel_1();
         void RunParallel_2();
         void RunParallel_3();
-        virtual bool Validate();
+        virtual bool Validate() override;
         virtual ~Activation() {
             if(initialized) {
                 Free4DArray<float>(input);

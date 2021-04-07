@@ -15,7 +15,7 @@ class CooleyTukeyFFT : public Benchmark {
         void RunParallel_Final();
         void RunParallel_Single();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
-        virtual bool Validate();
+        virtual bool Validate() override;
 
         virtual ~CooleyTukeyFFT() {
             if(initialized) {

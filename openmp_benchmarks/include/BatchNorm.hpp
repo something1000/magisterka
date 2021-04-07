@@ -11,7 +11,7 @@ class BatchNorm : public Benchmark {
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual void RunSerial() override;
         virtual void RunParallel() override;
-        virtual bool Validate();
+        virtual bool Validate() override;
         virtual ~BatchNorm() {
             if(initialized) {
                 Free4DArray(input_data);

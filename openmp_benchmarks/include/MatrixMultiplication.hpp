@@ -12,7 +12,7 @@ class MatrixMultiplication : public Benchmark {
         virtual void RunParallel() override;
         void RunParallel_1();
         void RunParallel_2();
-        virtual bool Validate();
+        virtual bool Validate() override;
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual ~MatrixMultiplication() {
             if(initialized) {
