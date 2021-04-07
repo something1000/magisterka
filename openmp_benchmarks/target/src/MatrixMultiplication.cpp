@@ -11,71 +11,67 @@ void MatrixMultiplication::RunParallel() {
 void MatrixMultiplication::RunParallel_1() {
     auto excel = *this->file;
 
-    BENCHMARK_STRUCTURE(
-        excel,                  // name of csv logger
-        "Parallel_Collapse",    // name of benchmark
-        warmup,                 // name of warmup rounds variable
-        rounds,                 // name of benchmark rounds variable
-        ELAPSED_Collapse,       // variable name to store execution time
-        {
-            mpragma(omp parallel for collapse(2) schedule(static)) // static as every thread have same work to do
-            for(int i=0; i < N; i++) {
-                for(int j=0; j < K; j++) {
-                    result[i][j] = 0.0f;
-                    for(int c=0; c < M; c++) {
-                        result[i][j] += sourceA[i][c] * sourceB[c][j];
+    auto fn = [&]() {
+        int X = N; int Y = M; int Z = K;
+        float* raw_result_ptr = result[0];
+        float* raw_A = sourceA[0];
+        float* raw_B = sourceB[0];
+        #pragma omp target teams distribute parallel for collapse(2) schedule(static) \
+                map(tofrom:raw_A[0:N*M],raw_B[0:M*K]) map(tofrom:raw_result_ptr[0:N*K])
+            for(int i=0; i < X; i++) {
+                for(int j=0; j < Z; j++) {
+                    raw_result_ptr[i*Z+j] = 0.0f;
+                    for(int c=0; c < Y; c++) {
+                        raw_result_ptr[i*Z+j] += raw_A[i*Y+c] * raw_B[c*Z+j];
                     }
                 }
             }
-        }
-    )
+    };
+
+    BenchmarkIt(excel, "Parallel_Collapse", warmup, rounds, fn);
 }
 
 void MatrixMultiplication::RunParallel_2() {
     auto excel = *this->file;
 
     // second benchmark without collapse clause
-    BENCHMARK_STRUCTURE(
-        excel,              // name of csv logger
-        "Parallel_Normal",  // name of benchmark
-        warmup,             // name of warmup rounds variable
-        rounds,             // name of benchmark rounds variable
-        ELAPSED,            // variable name to store execution time
-        {
-            mpragma(omp parallel for schedule(static)) // static as every thread have same work to do
-            for(int i=0; i < N; i++) {
-                for(int j=0; j < K; j++) {
-                    result[i][j] = 0.0f;
-                    for(int c=0; c < M; c++) {
-                        result[i][j] += sourceA[i][c] * sourceB[c][j];
+    auto fn = [&]() {
+        int X = N; int Y = M; int Z = K;
+        float* raw_result_ptr = result[0];
+        float* raw_A = sourceA[0];
+        float* raw_B = sourceB[0];
+        #pragma omp target teams distribute parallel for schedule(static)\
+                map(tofrom:raw_A[0:N*M],raw_B[0:M*K]) map(tofrom:raw_result_ptr[0:N*K])
+            for(int i=0; i < X; i++) {
+                for(int j=0; j < Z; j++) {
+                    raw_result_ptr[i*Z+j] = 0.0f;
+                    for(int c=0; c < Y; c++) {
+                        raw_result_ptr[i*Z+j] += raw_A[i*Y+c] * raw_B[c*Z+j];
                     }
                 }
             }
-        }
-    )
+    };
+
+    BenchmarkIt(excel, "Parallel_Normal", warmup, rounds, fn);
+
 }
 
 
 void MatrixMultiplication::RunSerial() {
 
     auto excel = *this->file;
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "Serial",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
-        {
-            for(int i=0; i < N; i++) {
-                for(int j=0; j < K; j++) {
-                    result[i][j] = 0.0f;
-                    for(int c=0; c < M; c++) {
-                        result[i][j] += sourceA[i][c] * sourceB[c][j];
-                    }
+
+    auto fn = [&]() {
+        for(int i=0; i < N; i++) {
+            for(int j=0; j < K; j++) {
+                result[i][j] = 0.0f;
+                for(int c=0; c < M; c++) {
+                    result[i][j] += sourceA[i][c] * sourceB[c][j];
                 }
             }
         }
-    )
+    };
+    BenchmarkIt(excel, "Serial", warmup, rounds, fn);
 }
 
 bool MatrixMultiplication::Validate() {
