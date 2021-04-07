@@ -3,15 +3,14 @@ project(OpenMPBench)
 
 set(CMAKE_CXX_STANDARD 17)
 set(EXECUTABLE OpenMPBench)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 option(BUILD_OFFLOADING "Build with offloading support" OFF)
 
-
-#Bring basic benchmarks
 include_directories(include)
 include_directories(3rdparty/rapidjson/include)
 file(GLOB SOURCES "src/*.cpp")
+
 add_executable(${EXECUTABLE} ${SOURCES})
 
 find_package(OpenMP)
@@ -26,12 +25,12 @@ if(BUILD_OFFLOADING)
     add_executable(${OFFLOAD_EXEC} ${OFFLOAD_SOURCE})
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        target_compile_options(${OFFLOAD_EXEC} PUBLIC -fopenmp-targets=nvptx64-nvidia-cuda)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_C_FLAGS} -fopenmp-targets=nvptx64-nvidia-cuda -Xopenmp-target -march=sm_61")
+        set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}  -fopenmp-targets=nvptx64-nvidia-cuda -Xopenmp-target -march=sm_61")
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        target_compile_options(${OFFLOAD_EXEC} PUBLIC -foffload=nvptx-none)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_C_FLAGS} -foffload=nvptx-none")
+        set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -foffload=nvptx-none")
     endif()
 
-    if(OpenMP_CXX_FOUND)
-        target_link_libraries(${OFFLOAD_EXEC} PUBLIC OpenMP::OpenMP_CXX)
-    endif()
+
 endif()
