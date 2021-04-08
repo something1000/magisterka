@@ -5,102 +5,67 @@
 #include <functional>
 
 void Activation::RunParallel() {
-    RunParallel_1();
     RunParallel_2();
     RunParallel_3();
 }
 
-
-
 void Activation::RunParallel_1() {
-    auto excel = *this->file;
-
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "PARALLEL_FOR_COLLAPSE",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
-        {
-            mpragma(omp parallel for collapse(4) schedule(static, static_size))
-            for(int j=0; j < N; ++j) {
-                for(int z=0; z < C; ++z) {
-                    for(int k=0; k < H; ++k) {
-                        for(int p=0; p < W; ++p) {
-                            output[j][z][k][p] = input[j][z][k][p] > 0 ? input[j][z][k][p] : 0;
-                        }
-                    }
-                }
-            }
-        }
-   )
+    // RunParallel_1 is not designed to run on gpu
 }
 
 void Activation::RunParallel_2() {
     auto excel = *this->file;
 
-    float* raw_input = input[0][0][0];
-    float* raw_output = output[0][0][0];
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "PARALLEL_FOR",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
-        {
-            int size = N*C*H*W;
-            mpragma(omp parallel for schedule(static, static_size))
+    auto fn = [&]() {
+        int size = N*C*H*W;
+        int _static_size = static_size; // fix for gcc bug - cant use class fields inside pragma region
+        float* raw_input = input[0][0][0];
+        float* raw_output = output[0][0][0];
+        #pragma omp target teams distribute parallel for schedule(static, _static_size) \
+                map(tofrom:raw_input[0:size]) map(tofrom:raw_output[0:size])
             for(int i=0; i < size; i++) {
                 raw_output[i] = raw_input[i] > 0 ? raw_input[i] : 0;
             }
-        }
-   )
+    };
+
+    BenchmarkIt(excel, "PARALLEL_FOR", warmup, rounds, fn);
 }
 
 
 void Activation::RunParallel_3() {
     auto excel = *this->file;
 
-    float* raw_input = input[0][0][0];
-    float* raw_output = output[0][0][0];
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "PARALLEL_FOR_SIMD",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
-        {
-            int size = N*C*H*W;
-            mpragma(omp parallel for simd)
+    auto fn = [&]() {
+        int size = N*C*H*W;
+        float* raw_input = input[0][0][0];
+        float* raw_output = output[0][0][0];
+        #pragma omp target teams distribute parallel for simd \
+                map(tofrom:raw_input[0:size]) map(tofrom:raw_output[0:size])
             for(int i=0; i < size; i++) {
                 raw_output[i] = raw_input[i] > 0 ? raw_input[i] : 0;
             }
-        }
-   )
+    };
+
+    BenchmarkIt(excel, "PARALLEL_FOR_SIMD", warmup, rounds, fn);
 }
 
 void Activation::RunSerial() {
     auto excel = *this->file;
 
-    float* raw_input = input[0][0][0];
-    float* raw_output = output[0][0][0];
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "Serial",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
-        {
-            for(int i=0; i < N*C*H*W; i++) {
-                raw_output[i] = raw_input[i] > 0 ? raw_input[i] : 0;
-            }
+    auto fn = [&]() {
+        int size = N*C*H*W;
+        float* raw_input = input[0][0][0];
+        float* raw_output = output[0][0][0];
+        for(int i=0; i < size; i++) {
+            raw_output[i] = raw_input[i] > 0 ? raw_input[i] : 0;
         }
-   )
+    };
+    BenchmarkIt(excel, "SERIAL", warmup, rounds, fn);
 }
 
 bool Activation::Validate() {
     Tensor4D<float> out_serial = Create4DArray<float>(N, C, H, W);
-    Tensor4D<float> out_parallel_1 = Create4DArray<float>(N, C, H, W);
+   // Tensor4D<float> out_parallel_1 = Create4DArray<float>(N, C, H, W);
     Tensor4D<float> out_parallel_2 = Create4DArray<float>(N, C, H, W);
     Tensor4D<float> out_parallel_3 = Create4DArray<float>(N, C, H, W);
     rounds = 1;
@@ -111,8 +76,8 @@ bool Activation::Validate() {
     output = out_serial;
     RunSerial();
 
-    output = out_parallel_1;
-    RunParallel_1();
+    // output = out_parallel_1;
+    // RunParallel_1();
 
     output = out_parallel_2;
     RunParallel_2();
@@ -120,13 +85,13 @@ bool Activation::Validate() {
     output = out_parallel_3;
     RunParallel_3();
 
-    bool is_valid = Compare4DArray(out_serial, out_parallel_1, N, C, H, W);
-    is_valid = is_valid && Compare4DArray(out_serial, out_parallel_2, N, C, H, W);
+    bool is_valid = Compare4DArray(out_serial, out_parallel_2, N, C, H, W);
     is_valid = is_valid && Compare4DArray(out_serial, out_parallel_3, N, C, H, W);
+    // is_valid = is_valid && Compare4DArray(out_serial, out_parallel_3, N, C, H, W);
 
     output = tmp;
     Free4DArray<float>(out_serial);
-    Free4DArray<float>(out_parallel_1);
+    // Free4DArray<float>(out_parallel_1);
     Free4DArray<float>(out_parallel_2);
     Free4DArray<float>(out_parallel_3);
     return is_valid;
