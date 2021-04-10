@@ -11,112 +11,125 @@ void Convolution2D::RunParallel() {
 void Convolution2D::RunParallel_1() {
     auto excel = *this->file;
 
-    const int H = this->H;
-    const int W = this->W;
-    const int kernel = this->kernel;
-    const int kernel_center = kernel/2;
+    auto fn = [&]() {
+        int _N = N;
+        int _H = H;
+        int _W = W;
+        int _kernel = kernel;
+        int kernel_center = kernel/2;
+        int rH = (H - 2 * kernel_center);
+        int rW = (W - 2 * kernel_center);
+        int res_size = N * rH * rW;
+        float* raw_input  = input_data[0][0];
+        float* raw_result = result[0][0];
+        float* raw_kernel = kernel_data[0];
 
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "Parallel_Collapse_3",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED_2,    // variable name to store execution time
-        {
+        #pragma omp target teams distribute parallel for collapse(3) \
+                map(to:raw_input[0:_N*_H*_W]) map(to:raw_kernel[0:_kernel*_kernel]) \
+                map(tofrom:raw_result[0:res_size])
+            for(int batch=0; batch < _N; ++batch) {
 
-            mpragma(omp parallel for collapse(3))
-            for(int batch=0; batch < N; ++batch) {
-
-                for(int y=kernel_center; y < H - kernel_center; ++y) {
-                    for(int x=kernel_center; x < W - kernel_center; ++x) {
-                        result[batch][y-kernel_center][x-kernel_center] = 0.0f;
-                        for(int ky=0; ky < kernel; ++ky) {
-                            for(int kx=0; kx < kernel; ++kx) {
+                for(int y=kernel_center; y < _H - kernel_center; ++y) {
+                    for(int x=kernel_center; x < _W - kernel_center; ++x) {
+                        raw_result[batch*rH*rW + (y-kernel_center) * rW + x-kernel_center] += 0.0f;
+                        for(int ky=0; ky < _kernel; ++ky) {
+                            for(int kx=0; kx < _kernel; ++kx) {
 
                                 int input_index_y = y + (kernel_center - ky);
                                 int input_index_x = x + (kernel_center - kx);
-                                result[batch][y-kernel_center][x-kernel_center] += input_data[batch][input_index_y][input_index_x] * kernel_data[ky][kx];
+                                raw_result[batch*rH*rW + (y-kernel_center) * rW + x-kernel_center] +=
+                                        raw_input[batch*_H*_W + input_index_y * _W + input_index_x] * raw_kernel[ky * _kernel + kx];
+                                //result[batch][y-kernel_center][x-kernel_center] += input_data[batch][input_index_y][input_index_x] * kernel_data[ky][kx];
                             }
                         }
                     }
                 }
             }
-        }
-    )
+    };
+
+    BenchmarkIt(excel, "Parallel_Collapse_3", warmup, rounds, fn);
 }
 
 
 void Convolution2D::RunParallel_2() {
     auto excel = *this->file;
 
-    const int H = this->H;
-    const int W = this->W;
-    const int kernel = this->kernel;
-    const int kernel_center = kernel/2;
+    auto fn = [&]() {
+        int _N = N;
+        int _H = H;
+        int _W = W;
+        int _kernel = kernel;
+        int kernel_center = kernel/2;
+        int rH = (H - 2 * kernel_center);
+        int rW = (W - 2 * kernel_center);
+        int res_size = N * rH * rW;
+        float* raw_input  = input_data[0][0];
+        float* raw_result = result[0][0];
+        float* raw_kernel = kernel_data[0];
 
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "Parallel_Collapse_2",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED_3,    // variable name to store execution time
-        {
+        #pragma omp target teams distribute parallel for collapse(2) \
+                map(to:raw_input[0:_N*_H*_W]) map(to:raw_kernel[0:_kernel*_kernel]) \
+                map(tofrom:raw_result[0:res_size])
+            for(int batch=0; batch < _N; ++batch) {
 
-            mpragma(omp parallel for collapse(2))
-            for(int batch=0; batch < N; ++batch) {
-
-                for(int y=kernel_center; y < H - kernel_center; ++y) {
-                    for(int x=kernel_center; x < W - kernel_center; ++x) {
-                        result[batch][y-kernel_center][x-kernel_center] = 0.0f;
-                        for(int ky=0; ky < kernel; ++ky) {
-                            for(int kx=0; kx < kernel; ++kx) {
+                for(int y=kernel_center; y < _H - kernel_center; ++y) {
+                    for(int x=kernel_center; x < _W - kernel_center; ++x) {
+                        raw_result[batch*rH*rW + (y-kernel_center) * rW + x-kernel_center] += 0.0f;
+                        for(int ky=0; ky < _kernel; ++ky) {
+                            for(int kx=0; kx < _kernel; ++kx) {
 
                                 int input_index_y = y + (kernel_center - ky);
                                 int input_index_x = x + (kernel_center - kx);
-                                result[batch][y-kernel_center][x-kernel_center] += input_data[batch][input_index_y][input_index_x] * kernel_data[ky][kx];
+                                raw_result[batch*rH*rW + (y-kernel_center) * rW + x-kernel_center] +=
+                                        raw_input[batch*_H*_W + input_index_y * _W + input_index_x] * raw_kernel[ky * _kernel + kx];
+                                //result[batch][y-kernel_center][x-kernel_center] += input_data[batch][input_index_y][input_index_x] * kernel_data[ky][kx];
                             }
                         }
                     }
                 }
             }
-        }
-    )
+    };
+
+    BenchmarkIt(excel, "Parallel_Collapse_2", warmup, rounds, fn);
 }
 
 void Convolution2D::RunSerial() {
     auto excel = *this->file;
 
-    const int H = this->H;
-    const int W = this->W;
-    const int kernel = this->kernel;
-    const int kernel_center = kernel/2;
+    auto fn = [&]() {
+        int _N = N;
+        int _H = H;
+        int _W = W;
+        int _kernel = kernel;
+        int kernel_center = kernel/2;
+        int rH = (H - 2 * kernel_center);
+        int rW = (W - 2 * kernel_center);
+        int res_size = N * rH * rW;
+        float* raw_input  = input_data[0][0];
+        float* raw_result = result[0][0];
+        float* raw_kernel = kernel_data[0];
 
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "Serial",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
-        {
+        for(int batch=0; batch < _N; ++batch) {
 
-            for(int batch=0; batch < N; ++batch) {
+            for(int y=kernel_center; y < _H - kernel_center; ++y) {
+                for(int x=kernel_center; x < _W - kernel_center; ++x) {
+                    raw_result[batch*rH*rW + (y-kernel_center) * rW + x-kernel_center] += 0.0f;
+                    for(int ky=0; ky < _kernel; ++ky) {
+                        for(int kx=0; kx < _kernel; ++kx) {
 
-                for(int y=kernel_center; y < H - kernel_center; ++y) {
-                    for(int x=kernel_center; x < W - kernel_center; ++x) {
-                        result[batch][y-kernel_center][x-kernel_center] = 0.0f;
-                        for(int ky=0; ky < kernel; ++ky) {
-                            for(int kx=0; kx < kernel; ++kx) {
-
-                                int input_index_y = y + (kernel_center - ky);
-                                int input_index_x = x + (kernel_center - kx);
-                                result[batch][y-kernel_center][x-kernel_center] += input_data[batch][input_index_y][input_index_x] * kernel_data[ky][kx];
-                            }
+                            int input_index_y = y + (kernel_center - ky);
+                            int input_index_x = x + (kernel_center - kx);
+                            raw_result[batch*rH*rW + (y-kernel_center) * rW + x-kernel_center] +=
+                                    raw_input[batch*_H*_W + input_index_y * _W + input_index_x] * raw_kernel[ky * _kernel + kx];
+                            //result[batch][y-kernel_center][x-kernel_center] += input_data[batch][input_index_y][input_index_x] * kernel_data[ky][kx];
                         }
                     }
                 }
             }
-       }
-   )
+        }
+    };
+       
+    BenchmarkIt(excel, "Serial", warmup, rounds, fn);
 }
 
 
