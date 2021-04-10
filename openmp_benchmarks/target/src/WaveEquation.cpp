@@ -50,7 +50,7 @@ void WaveEquation::RunParallel_1() {
 
     };
 
-    BenchmarkIt(excel, "Parallel_parallel_outside", warmup, rounds, fn);
+    BenchmarkIt(excel, "Offload", warmup, rounds, fn);
 
 
 }
@@ -66,20 +66,15 @@ void WaveEquation::RunSerial() {
 
     auto excel = *this->file;
 
-    Tensor2D<double> src_2;
-    Tensor2D<double> src_1;
-    Tensor2D<double> dst;
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "Serial",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
-        {
-            for(int k=0; k < K-1; k++) {
-                src_2 = waves[k % 3]; //
-                src_1 = waves[(k + 1) % 3];
-                dst  = waves[(k + 2) % 3];
+    auto fn = [&]() {
+        Tensor2D<double> src_2;
+        Tensor2D<double> src_1;
+        Tensor2D<double> dst;
+
+        for(int t=0; t < K-1; t++) {
+                src_2 = waves[t % 3]; //
+                src_1 = waves[(t + 1) % 3];
+                dst  = waves[(t + 2) % 3];
 
                 for(int i=1; i < M-1; i++) {
                     for(int j=1; j < N-1; j++) {
@@ -96,8 +91,10 @@ void WaveEquation::RunSerial() {
                     }
                 }
             }
-        }
-   )
+
+    };
+
+    BenchmarkIt(excel, "Serial", warmup, rounds, fn);
 }
 
 
