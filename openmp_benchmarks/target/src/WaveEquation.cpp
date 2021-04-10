@@ -7,94 +7,58 @@
 
 void WaveEquation::RunParallel() {
     RunParallel_1();
-    RunParallel_2();
+    //RunParallel_2();
 }
 void WaveEquation::RunParallel_1() {
 
     auto excel = *this->file;
 
-    Tensor2D<double> src_2;
-    Tensor2D<double> src_1;
-    Tensor2D<double> dst;
 
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "Parallel_parallel_outside",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
+    auto fn = [&]() {
+        int _M = M; int _N = N; int _K = K;
+        int _static_size = static_size;
+        int size = 3 * M * N;
+        int _px = px; int _py = py;
+        double* raw_src = waves[0][0];
+        double* src_2;// = waves[k % 3][0]; //
+        double* src_1;// = waves[(k + 1) % 3][0];
+        double* dst;//   = waves[(k + 2) % 3][0];
+        #pragma omp target enter data map(to:raw_src[0:size])
         {
-            mpragma(omp parallel private(src_2, src_1, dst) shared(waves, M, N)) 
-            {
-                for(int k=0; k < K-1; k++) {
-                    //mpragma(omp master) {
-                        src_2 = waves[k % 3]; //
-                        src_1 = waves[(k + 1) % 3];
-                        dst  = waves[(k + 2) % 3];
-                    // }
-                    //mpragma(omp barrier)
-                    mpragma(omp for schedule(static, static_size))
-                    for(int i=1; i < M-1; i++) {
-                        for(int j=1; j < N-1; j++) {
-                            // z tlumieniem
-                            // dst[i][j] = 2.0 / q * (1 - px - py)* src[k][i][j]      // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
-                            //                 + px * (src[k][i+1][j] + src[k][i-1][j])/q  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))/q
-                            //                 + py * (src[k][i][j+1] + src[k][i][j-1])/q  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k))/q
-                            //                 - w*wave[k-1][i][j]/q;                        // w*f(2:M-1,2:N-1,k-1)/q
-                            // bez tlumienia
-                            dst[i][j] = 2.0 * (1 - px - py)* src_1[i][j]             // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
-                                            + px * (src_1[i+1][j] + src_1[i-1][j])  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))
-                                            + py * (src_1[i][j+1] + src_1[i][j-1])  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k)
-                                            - src_2[i][j];                        // f(2:M-1,2:N-1,k-1)
-                        }
-                    }
-                }
-            }
-        }
-    )
-
-}
-
-
-void WaveEquation::RunParallel_2() {
-
-    auto excel = *this->file;
-
-    Tensor2D<double> src_2;
-    Tensor2D<double> src_1;
-    Tensor2D<double> dst;
-
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "Parallel_parallel_inside",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
-        {
-
-            for(int k=0; k < K-1; k++) {
-                src_2 = waves[k % 3];
-                src_1 = waves[(k + 1) % 3];
-                dst  = waves[(k + 2) % 3];
-
-                mpragma(omp parallel for schedule(static, static_size))
-                for(int i=1; i < M-1; i++) {
-                    for(int j=1; j < N-1; j++) {
+            for(int t=0; t < _K-1; t++) {
+                src_2 = raw_src + (t % 3) * _M * _N; //
+                src_1 = raw_src +((t + 1) % 3) * _M * _N;
+                dst  = raw_src + ((t + 2) % 3) * _M * _N;
+                #pragma omp target teams distribute parallel for schedule(static, _static_size) collapse(2)
+                for(int i=1; i < _M-1; i++) {
+                    for(int j=1; j < _N-1; j++) {
                         // z tlumieniem
                         // dst[i][j] = 2.0 / q * (1 - px - py)* src[k][i][j]      // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
                         //                 + px * (src[k][i+1][j] + src[k][i-1][j])/q  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))/q
                         //                 + py * (src[k][i][j+1] + src[k][i][j-1])/q  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k))/q
                         //                 - w*wave[k-1][i][j]/q;                        // w*f(2:M-1,2:N-1,k-1)/q
                         // bez tlumienia
-                        dst[i][j] = 2.0 * (1 - px - py)* src_1[i][j]             // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
-                                        + px * (src_1[i+1][j] + src_1[i-1][j])  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))
-                                        + py * (src_1[i][j+1] + src_1[i][j-1])  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k)
-                                        - src_2[i][j];                        // f(2:M-1,2:N-1,k-1)
+                        dst[i*(_N) + j] = 2.0 * (1 - _px - _py) * src_1[i*(_N) +j]             // 2/q*(1-px-py)*f(2:M-1,2:N-1,k)
+                                            + _px * (src_1[(i+1)*(_N) + j] + src_1[(i-1)*(_N) + j])  // px*(f(3:M,2:N-1,k)+f(1:M-2,2:N-1,k))
+                                            + _py * (src_1[i*(_N) + j+1] + src_1[i*(_N) + j-1])  // py*( f(2:M-1,3:N,k)+f(2:M-1,1:N-2,k)
+                                            - src_2[i*(_N) +j];                        // f(2:M-1,2:N-1,k-1)
                     }
                 }
             }
         }
-    )
+        #pragma omp target exit data map(from:raw_src[0:size])
+
+    };
+
+    BenchmarkIt(excel, "Parallel_parallel_outside", warmup, rounds, fn);
+
+
+}
+
+
+void WaveEquation::RunParallel_2() {
+
+// Brak zastosowania dla offloadingu
 
 }
 
@@ -158,11 +122,11 @@ bool WaveEquation::Validate() {
     waves = out_parallel_1;
     RunParallel_1();
 
-    waves = out_parallel_2;
-    RunParallel_2();
+    // waves = out_parallel_2;
+    // RunParallel_2();
 
     bool is_valid = Compare3DArray(out_serial, out_parallel_1, 3, M, N);
-    is_valid &= Compare3DArray(out_serial, out_parallel_2, 3, M, N);
+    //is_valid &= Compare3DArray(out_serial, out_parallel_2, 3, M, N);
 
     waves = tmp;
     Free3DArray<double>(out_serial);
