@@ -11,71 +11,80 @@ void BatchNorm::RunParallel() {
     auto excel = *this->file;
 
     float* norm_divider = new float[C];
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "RunParallel_opt",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
+
+    auto fn = [&]() {
+        int _N = N; int _C = C; int _H = H; int _W = W;
+        int size = N*C*H*W;
+        float* raw_input = input_data[0][0][0];
+        float* raw_output = output[0][0][0];
+        float* _beta = beta;
+        float* _gamma = gamma;
+        float* _variance = variance;
+        float* _norm_divider  = norm_divider;
+        float* _mean  = mean;
+
+        #pragma omp target enter data  map(to:raw_input[0:size], _beta[0:_C], _gamma[0:_C]) \
+                                        map(to:raw_output[0:size]) \
+                                        map(to: _variance[0:_C], _mean[0:_C], _norm_divider[0:_C])
         {
-            float* input_raw = input_data[0][0][0];
+
+            #pragma omp target teams distribute parallel for
+            for(int i=0; i < _C; ++i) {
+                _variance[i] = 0;
+                _norm_divider[i] = 0;
+                _mean[i] = 0;
+            }
+
             //# mini-batch mean
-            mpragma(omp parallel)
-            {
-                mpragma(omp for)
-                for(int i=0; i < C; ++i) {
-                    variance[i] = 0;
-                    norm_divider[i] = 0;
-                    mean[i] = 0;
-                }
-
-                mpragma(omp for reduction(+:mean[:C]) collapse(2) schedule(static))
-                for(int i=0; i < C; ++i) {
-                    for(int j=0; j < N; ++j) {
-                        for(int k=0; k < H; ++k) {
-                            for(int p=0; p < W; ++p) {
-                                mean[i] += input_raw[i*H*W + j*C*H*W + k*W + p];
-                            }
+        #if defined(__clang__) 
+            //clang error: cannot generate code for reduction on array section, which requires a variable length array
+            //              #pragma omp  target teams distribute parallel for reduction(+:_variance[:_C]) schedule(static) collapse(4)
+            #pragma omp  target teams distribute parallel for schedule(static)
+        #else
+            #pragma omp  target teams distribute parallel for reduction(+:_mean[:_C]) schedule(static) collapse(4)
+        #endif
+            for(int i=0; i < _C; ++i) {
+                for(int j=0; j < _N; ++j) {
+                    for(int k=0; k < _H; ++k) {
+                        for(int p=0; p < _W; ++p) {
+                            _mean[i] += raw_input[i* _H * _W + j * _C * _H * _W + k* _W + p] / (1.0f*(_N * _H * _W));
                         }
                     }
                 }
-
-                mpragma(omp for)
-                for(int i=0; i < C; ++i) {
-                    mean[i] = mean[i] / (1.0f*(N*H*W));
-                }
-
-                mpragma(omp for reduction(+:variance[:C]) collapse(2) schedule(static))
-                for(int i=0; i < C; ++i) {
-                    for(int j=0; j < N; ++j) {
-                        for(int k=0; k < H; ++k) {
-                            for(int p=0; p < W; ++p) {
-                                auto in = input_raw[i*H*W + j*C*H*W + k*W + p];
-                                variance[i] += (in - mean[i]) * (in - mean[i]);
-                            }
+            }
+        #if defined(__clang__) 
+            #pragma omp  target teams distribute parallel for schedule(static)
+        #else
+            #pragma omp  target teams distribute parallel for reduction(+:_variance[:_C]) schedule(static) collapse(4)
+        #endif
+            for(int i=0; i < _C; ++i) {
+                for(int j=0; j < _N; ++j) {
+                    for(int k=0; k < _H; ++k) {
+                        for(int p=0; p < _W; ++p) {
+                            auto in = raw_input[i * _H * _W + j * _C * _H * _W + k * _W + p];
+                            _variance[i] += (in - _mean[i]) * (in - _mean[i]) / (1.0f*(_N * _H * _W));
                         }
                     }
                 }
+            }
 
-                mpragma(omp for)
-                for(int i=0; i < C; ++i) {
-                    variance[i] = variance[i] / (1.0f*(N*H*W));
-                    norm_divider[i] = sqrt(variance[i] + EPS);
-                }
-
-                mpragma(omp for schedule(static) collapse(2))
-                for(int i=0; i < C; ++i) {
-                    for(int j=0; j < N; ++j) {
-                        for(int k=0; k < H; ++k) {
-                            for(int p=0; p < W; ++p) {
-                                output[j][i][k][p] = gamma[i] * ((input_data[j][i][k][p] - mean[i]) / norm_divider[i]) + beta[i];
-                            }
+            #pragma omp  target teams distribute parallel for schedule(static) collapse(4)
+            for(int i=0; i < _C; ++i) {
+                for(int j=0; j < _N; ++j) {
+                    for(int k=0; k < _H; ++k) {
+                        for(int p=0; p < _W; ++p) {
+                            raw_output[i*_H *_W + j*_C*_H*_W + k*_W + p] = _gamma[i] * ((raw_input[i*_H*_W + j*_C*_H*_W + k*_W + p] - _mean[i]) / (sqrt(_variance[i] + EPS))) + _beta[i];
                         }
                     }
                 }
             }
         }
-    )
+        #pragma omp target exit data map(from:raw_output[0:size]) \
+                                     map(from: _variance[0:_C], _mean[0:_C], _norm_divider[0:_C])
+    };
+
+    BenchmarkIt(excel, "RunParallel_opt", warmup, rounds, fn);
+
    delete[] norm_divider;
 }
 
@@ -86,63 +95,59 @@ void BatchNorm::RunSerial() {
     auto excel = *this->file;
 
     float* norm_divider = new float[C];
-    BENCHMARK_STRUCTURE(
-        excel,      // name of csv logger
-        "Serial",   // name of benchmark
-        warmup,     // name of warmup rounds variable
-        rounds,     // name of benchmark rounds variable
-        ELAPSED,    // variable name to store execution time
-        {
-            float* input_raw = input_data[0][0][0];
-            //# mini-batch mean
-            for(int i=0; i < C; ++i) {
-                variance[i] = 0;
-                norm_divider[i] = 0;
-                mean[i] = 0;
-            }
+     auto fn = [&]() {
+        float* input_raw = input_data[0][0][0];
+        //# mini-batch mean
+        for(int i=0; i < C; ++i) {
+            variance[i] = 0;
+            norm_divider[i] = 0;
+            mean[i] = 0;
+        }
 
+        for(int i=0; i < C; ++i) {
             for(int j=0; j < N; ++j) {
-                for(int i=0; i < C; ++i) {
-                    for(int k=0; k < H; ++k) {
-                        for(int p=0; p < W; ++p) {
-                            mean[i] += input_raw[i*H*W + j*C*H*W + k*W + p];
-                        }
-                    }
-                }
-            }
-
-            for(int i=0; i < C; ++i) {
-                mean[i] = mean[i] / (1.0f*(N*H*W));
-            }
-            //# mini-batch variance
-            //variance = np.mean((arr - mean.reshape((1, 3, 1, 1))) ** 2, axis=(0, 2, 3))
-            for(int j=0; j < N; ++j) {
-                for(int i=0; i < C; ++i) {
-                    for(int k=0; k < H; ++k) {
-                        for(int p=0; p < W; ++p) {
-                            auto in = input_raw[i*H*W + j*C*H*W + k*W + p];
-                            variance[i] += (in - mean[i]) * (in - mean[i]);
-                        }
-                    }
-                }
-            }
-
-            for(int i=0; i < C; ++i) {
-                variance[i] = variance[i] / (1.0f*(N*H*W));
-                norm_divider[i] = sqrt(variance[i] + EPS);
-            }
-
-            for(int j=0; j < N; ++j) {
-                for(int i=0; i < C; ++i) {
-                    for(int k=0; k < H; ++k) {
-                        for(int p=0; p < W; ++p) {
-                            output[j][i][k][p] = gamma[i] * ((input_data[j][i][k][p] - mean[i]) / norm_divider[i]) + beta[i];
-                        }
+                for(int k=0; k < H; ++k) {
+                    for(int p=0; p < W; ++p) {
+                        mean[i] += input_raw[i*H*W + j*C*H*W + k*W + p];
                     }
                 }
             }
         }
-   )
+
+        for(int i=0; i < C; ++i) {
+            mean[i] = mean[i] / (1.0f*(N*H*W));
+        }
+        //# mini-batch variance
+        //variance = np.mean((arr - mean.reshape((1, 3, 1, 1))) ** 2, axis=(0, 2, 3))
+        for(int i=0; i < C; ++i) {
+            for(int j=0; j < N; ++j) {
+                for(int k=0; k < H; ++k) {
+                    for(int p=0; p < W; ++p) {
+                        auto in = input_raw[i*H*W + j*C*H*W + k*W + p];
+                        variance[i] += (in - mean[i]) * (in - mean[i]);
+                    }
+                }
+            }
+        }
+
+        for(int i=0; i < C; ++i) {
+            variance[i] = variance[i] / (1.0f*(N*H*W));
+            norm_divider[i] = sqrt(variance[i] + EPS);
+        }
+
+        for(int i=0; i < C; ++i) {
+            for(int j=0; j < N; ++j) {
+                for(int k=0; k < H; ++k) {
+                    for(int p=0; p < W; ++p) {
+                        output[j][i][k][p] = gamma[i] * ((input_data[j][i][k][p] - mean[i]) / norm_divider[i]) + beta[i];
+                    }
+                }
+            }
+        }
+    };
+
+    BenchmarkIt(excel, "Serial", warmup, rounds, fn);
+
    delete[] norm_divider;
 }
 
