@@ -38,10 +38,13 @@ void ParallelQuicksortDouble(float* array, int left, int right, int node_id) {
 
 void QuickSort::RunParallelDouble() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(size) << "PARALLEL_DOUBLE";
+    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Parallel_Double",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -73,10 +76,13 @@ void ParallelQuicksortSingle(float* array, int left, int right, int node_id) {
 }
 void QuickSort::RunParallelSingle() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(size) << "PARALLEL_SINGLE";
+    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Parallel_Single",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -104,11 +110,13 @@ void Quicksort(float *array, int left, int right){
 
 void QuickSort::RunSerial() {
     auto excel = *this->file;
-
+    std::stringstream os;
+    os << VAR_(size) << "SERIAL";
+    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Serial",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time

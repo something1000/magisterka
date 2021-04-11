@@ -10,8 +10,11 @@ void WaveEquation::RunParallel() {
     RunParallel_2();
 }
 void WaveEquation::RunParallel_1() {
-
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(M) << VAR_(N) << VAR_(K) << VAR_(static_size) << "PARALLEL_OUTSIDE";
+    std::string name = os.str();
+
 
     Tensor2D<double> src_2;
     Tensor2D<double> src_1;
@@ -19,7 +22,7 @@ void WaveEquation::RunParallel_1() {
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Parallel_parallel_outside",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -57,8 +60,10 @@ void WaveEquation::RunParallel_1() {
 
 
 void WaveEquation::RunParallel_2() {
-
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(M) << VAR_(N) << VAR_(K) << VAR_(static_size) << "PARALLEL_INSIDE";
+    std::string name = os.str();
 
     Tensor2D<double> src_2;
     Tensor2D<double> src_1;
@@ -66,7 +71,7 @@ void WaveEquation::RunParallel_2() {
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Parallel_parallel_inside",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -99,15 +104,17 @@ void WaveEquation::RunParallel_2() {
 }
 
 void WaveEquation::RunSerial() {
-
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(M) << VAR_(N) << VAR_(K) << VAR_(static_size) << "SERIAL";
+    std::string name = os.str();
 
     Tensor2D<double> src_2;
     Tensor2D<double> src_1;
     Tensor2D<double> dst;
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Serial",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -186,7 +193,7 @@ void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& prope
     N = properties["N"].GetInt();
     K = properties["K"].GetInt();
     static_size = properties["static_size"].GetInt();
-    Logger::INFO << VAR(M) << VAR(N) << VAR(K);
+    Logger::INFO << VAR(M) << VAR(N) << VAR(K) << VAR(static_size);
 
     Reinitialize();
 }

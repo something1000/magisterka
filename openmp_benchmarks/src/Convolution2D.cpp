@@ -10,6 +10,9 @@ void Convolution2D::RunParallel() {
 
 void Convolution2D::RunParallel_1() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(H) << VAR_(W) << VAR_(kernel) << "PARALLEL_COLLAPSE_3";
+    std::string name = os.str();
 
     const int H = this->H;
     const int W = this->W;
@@ -18,7 +21,7 @@ void Convolution2D::RunParallel_1() {
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Parallel_Collapse_3",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED_2,    // variable name to store execution time
@@ -48,6 +51,9 @@ void Convolution2D::RunParallel_1() {
 
 void Convolution2D::RunParallel_2() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(H) << VAR_(W) << VAR_(kernel) << "PARALLEL_COLLAPSE_2";
+    std::string name = os.str();
 
     const int H = this->H;
     const int W = this->W;
@@ -56,7 +62,7 @@ void Convolution2D::RunParallel_2() {
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Parallel_Collapse_2",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED_3,    // variable name to store execution time
@@ -85,6 +91,9 @@ void Convolution2D::RunParallel_2() {
 
 void Convolution2D::RunSerial() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(H) << VAR_(W) << VAR_(kernel) << "SERIAL";
+    std::string name = os.str();
 
     const int H = this->H;
     const int W = this->W;
@@ -93,7 +102,7 @@ void Convolution2D::RunSerial() {
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Serial",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time

@@ -14,10 +14,13 @@ void Activation::RunParallel() {
 
 void Activation::RunParallel_1() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(C) << VAR_(H) << VAR_(W) << VAR_(static_size) << "PARALLEL_COLLAPSE";
+    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "PARALLEL_FOR_COLLAPSE",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -38,12 +41,15 @@ void Activation::RunParallel_1() {
 
 void Activation::RunParallel_2() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(C) << VAR_(H) << VAR_(W) << VAR_(static_size) << "PARALLEL";
+    std::string name = os.str();
 
     float* raw_input = input[0][0][0];
     float* raw_output = output[0][0][0];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "PARALLEL_FOR",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -60,12 +66,15 @@ void Activation::RunParallel_2() {
 
 void Activation::RunParallel_3() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(C) << VAR_(H) << VAR_(W) << VAR_(static_size) << "PARALLEL_SIMD";
+    std::string name = os.str();
 
     float* raw_input = input[0][0][0];
     float* raw_output = output[0][0][0];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "PARALLEL_FOR_SIMD",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -81,12 +90,15 @@ void Activation::RunParallel_3() {
 
 void Activation::RunSerial() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(C) << VAR_(H) << VAR_(W) << VAR_(static_size) << "SERIAL";
+    std::string name = os.str();
 
     float* raw_input = input[0][0][0];
     float* raw_output = output[0][0][0];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Serial",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time

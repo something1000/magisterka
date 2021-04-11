@@ -9,11 +9,14 @@
 
 void BatchNorm::RunParallel() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(C) << VAR_(H) << VAR_(W) << "PARALLEL";
+    std::string name = os.str();
 
     float* norm_divider = new float[C];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "RunParallel_opt",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -84,11 +87,14 @@ void BatchNorm::RunParallel() {
 
 void BatchNorm::RunSerial() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(C) << VAR_(H) << VAR_(W) << "SERIAL";
+    std::string name = os.str();
 
     float* norm_divider = new float[C];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Serial",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time

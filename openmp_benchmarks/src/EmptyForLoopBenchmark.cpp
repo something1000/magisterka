@@ -7,10 +7,13 @@
 void EmptyForLoopBenchmark::RunParallel() {
     auto excel = *this->file;
     int dummy = 0;
+    std::stringstream os;
+    os << VAR_(iterations) << "PARALLEL";
+    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Parallel",
+        name,
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -27,10 +30,13 @@ void EmptyForLoopBenchmark::RunParallel() {
 void EmptyForLoopBenchmark::RunSerial() {
     auto excel = *this->file;
     int dummy=0;
+    std::stringstream os;
+    os << VAR_(iterations) << "SERIAL";
+    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Serial",
+        name,
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time

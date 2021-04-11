@@ -10,10 +10,13 @@ void MatrixMultiplication::RunParallel() {
 
 void MatrixMultiplication::RunParallel_1() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(M) << VAR_(K) << "PARALLEL_COLLAPSE_STATIC";
+    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,                  // name of csv logger
-        "Parallel_Collapse",    // name of benchmark
+        name,                   // name of benchmark
         warmup,                 // name of warmup rounds variable
         rounds,                 // name of benchmark rounds variable
         ELAPSED_Collapse,       // variable name to store execution time
@@ -33,11 +36,14 @@ void MatrixMultiplication::RunParallel_1() {
 
 void MatrixMultiplication::RunParallel_2() {
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(M) << VAR_(K) << "PARALLEL_STATIC";
+    std::string name = os.str();
 
     // second benchmark without collapse clause
     BENCHMARK_STRUCTURE(
         excel,              // name of csv logger
-        "Parallel_Normal",  // name of benchmark
+        name,               // name of benchmark
         warmup,             // name of warmup rounds variable
         rounds,             // name of benchmark rounds variable
         ELAPSED,            // variable name to store execution time
@@ -57,11 +63,14 @@ void MatrixMultiplication::RunParallel_2() {
 
 
 void MatrixMultiplication::RunSerial() {
-
     auto excel = *this->file;
+    std::stringstream os;
+    os << VAR_(N) << VAR_(M) << VAR_(K) << "SERIAL";
+    std::string name = os.str();
+
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        "Serial",   // name of benchmark
+        name,       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time

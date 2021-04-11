@@ -10,6 +10,7 @@
 #include <memory>
 #include <numeric>
 #include <stdlib.h>
+#include <sstream>
 #include <unordered_map>
 #include "Benchmark.hpp"
 #include "Logger.hpp"
@@ -21,6 +22,7 @@
 
 #define PUT_BENCHMARK(NAME) {#NAME, std::make_shared<NAME>(#NAME)}
 #define VAR(X) #X":" << X << " "
+#define VAR_(X) #X":" << X << "_"
 #define IND(x) "[" << x << "]"
 
 typedef std::shared_ptr<Benchmark> BenchmarkPtr;
