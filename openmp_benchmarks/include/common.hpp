@@ -173,12 +173,15 @@ inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O, float m
 template<class T>
 inline bool CompareArray(T* arr1, T* arr2, int N, float rtol=0.01, float atol=0.001) {
     bool result = true;
+    int err_cnt = 0;
     for(int i=0; i < N; i++) {
         if(std::abs( (arr1[i] - arr2[i])/arr1[i]) > rtol
            && std::abs(arr1[i] - arr2[i]) > atol) {
             Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << " = " << arr1[i]
                           << " and arr2" << IND(i) << " = " << arr2[i];
             result = false;
+            if (err_cnt++ >= 10)
+                return result;
         }
     }
     return result;
@@ -187,6 +190,7 @@ inline bool CompareArray(T* arr1, T* arr2, int N, float rtol=0.01, float atol=0.
 template<class T>
 inline bool Compare2DArray(Tensor2D<T> arr1, Tensor2D<T> arr2, int N, int M, float rtol=0.01, float atol=0.001) {
     bool result = true;
+    int err_cnt = 0;
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             if(std::abs( (arr1[i][j] - arr2[i][j])/arr1[i][j]) > rtol
@@ -194,6 +198,8 @@ inline bool Compare2DArray(Tensor2D<T> arr1, Tensor2D<T> arr2, int N, int M, flo
                 Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << " = " << arr1[i][j]
                               << " and arr2" << IND(i) << IND(j) << " = " << arr2[i][j];
                 result = false;
+                if (err_cnt++ >= 10)
+                    return result;
             }
         }
     }
@@ -203,6 +209,7 @@ inline bool Compare2DArray(Tensor2D<T> arr1, Tensor2D<T> arr2, int N, int M, flo
 template<class T>
 inline bool Compare3DArray(Tensor3D<T> arr1, Tensor3D<T> arr2, int N, int M, int K, float rtol=0.01, float atol=0.001) {
     bool result = true;
+    int err_cnt = 0;
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
@@ -211,6 +218,8 @@ inline bool Compare3DArray(Tensor3D<T> arr1, Tensor3D<T> arr2, int N, int M, int
                     Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << IND(l) << " = " << arr1[i][j][l]
                                     << " and arr2" << IND(i) << IND(j) << IND(l) << " = " << arr2[i][j][l];
                     result = false;
+                    if (err_cnt++ >= 10)
+                        return result;
                 }
             }
         }
@@ -221,6 +230,7 @@ inline bool Compare3DArray(Tensor3D<T> arr1, Tensor3D<T> arr2, int N, int M, int
 template<class T>
 inline bool Compare4DArray(Tensor4D<T> arr1, Tensor4D<T> arr2, int N, int M, int K, int O, float rtol=0.01, float atol=0.0004) {
     bool result = true;
+    int err_cnt = 0;
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
@@ -230,6 +240,8 @@ inline bool Compare4DArray(Tensor4D<T> arr1, Tensor4D<T> arr2, int N, int M, int
                         Logger::ERROR << "Error exceeds epsilon: arr1" << IND(i) << IND(j) << IND(l) << IND(z) << " = " << arr1[i][j][l][z]
                                       << " and arr2" << IND(i) << IND(j) << IND(l) << IND(z) << " = " << arr2[i][j][l][z];
                         result = false;
+                        if (err_cnt++ >= 10)
+                            return result;
                     }
                  }
             }
