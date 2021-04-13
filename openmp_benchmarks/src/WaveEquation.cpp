@@ -157,21 +157,22 @@ bool WaveEquation::Validate() {
     rounds = 1;
     warmup = 0;
 
-    Tensor3D<double> tmp = waves;
-
-    waves = out_serial;
+    Swap3DArray(waves, out_serial, 3, M);
     RunSerial();
+    Swap3DArray(waves, out_serial, 3, M);
 
-    waves = out_parallel_1;
+    Swap3DArray(waves, out_parallel_1, 3, M);
     RunParallel_1();
+    Swap3DArray(waves, out_parallel_1, 3, M);
 
-    waves = out_parallel_2;
+
+    Swap3DArray(waves, out_parallel_2, 3, M);
     RunParallel_2();
+    Swap3DArray(waves, out_parallel_2, 3, M);
 
     bool is_valid = Compare3DArray(out_serial, out_parallel_1, 3, M, N);
     is_valid &= Compare3DArray(out_serial, out_parallel_2, 3, M, N);
 
-    waves = tmp;
     Free3DArray<double>(out_serial);
     Free3DArray<double>(out_parallel_1);
     Free3DArray<double>(out_parallel_2);

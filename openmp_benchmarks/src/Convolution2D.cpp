@@ -139,21 +139,21 @@ bool Convolution2D::Validate() {
     rounds = 1;
     warmup = 0;
 
-    Tensor3D<float> tmp = result;
-
-    result = out_serial;
+    Swap3DArray(result, out_serial, N, res_rows);
     RunSerial();
+    Swap3DArray(result, out_serial, N, res_rows);
 
-    result = out_parallel_1;
+    Swap3DArray(result, out_parallel_1, N, res_rows);
     RunParallel_1();
+    Swap3DArray(result, out_parallel_1, N, res_rows);
 
-    result = out_parallel_2;
+    Swap3DArray(result, out_parallel_2, N, res_rows);
     RunParallel_2();
+    Swap3DArray(result, out_parallel_2, N, res_rows);
 
     bool is_valid = Compare3DArray(out_serial, out_parallel_1, N, res_rows, res_cols);
     is_valid = is_valid && Compare3DArray(out_serial, out_parallel_2, N, res_rows, res_cols);
 
-    result = tmp;
     Free3DArray<float>(out_serial);
     Free3DArray<float>(out_parallel_1);
     Free3DArray<float>(out_parallel_2);

@@ -81,21 +81,21 @@ bool MatrixMultiplication::Validate() {
     rounds = 1;
     warmup = 0;
 
-    Tensor2D<float> tmp = result;
-
-    result = out_serial;
+    Swap2DArray(out_serial, result, N);
     RunSerial();
+    Swap2DArray(out_serial, result, N);
 
-    result = out_parallel_1;
+    Swap2DArray(out_parallel_1, result, N);
     RunParallel_1();
+    Swap2DArray(out_parallel_1, result, N);
 
-    result = out_parallel_2;
+    Swap2DArray(out_parallel_2, result, N);
     RunParallel_2();
+    Swap2DArray(out_parallel_2, result, N);
 
     bool is_valid = Compare2DArray(out_serial, out_parallel_1, N, K);
     is_valid = is_valid && Compare2DArray(out_serial, out_parallel_2, N, K);
 
-    result = tmp;
     Free2DArray<float>(out_serial);
     Free2DArray<float>(out_parallel_1);
     Free2DArray<float>(out_parallel_2);

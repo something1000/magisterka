@@ -158,17 +158,16 @@ bool BatchNorm::Validate() {
     rounds = 1;
     warmup = 0;
 
-    Tensor4D<float> tmp = output;
-
-    output = out_serial;
+    Swap4DArray(output, out_serial, N, C, H);
     RunSerial();
+    Swap4DArray(output, out_serial, N, C, H);
 
-    output = out_parallel;
+    Swap4DArray(output, out_parallel, N, C, H);
     RunParallel();
+    Swap4DArray(output, out_parallel, N, C, H);
 
     bool is_valid = Compare4DArray(out_serial, out_parallel, N, C, H, W);
 
-    output = tmp;
     Free4DArray<float>(out_serial);
     Free4DArray<float>(out_parallel);
     return is_valid;

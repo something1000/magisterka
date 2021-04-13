@@ -101,34 +101,29 @@ void WaveEquation::RunSerial() {
 bool WaveEquation::Validate() {
     Tensor3D<double> out_serial = Create3DArray<double>(3, M, N);
     Tensor3D<double> out_parallel_1 = Create3DArray<double>(3, M, N);
-    Tensor3D<double> out_parallel_2 = Create3DArray<double>(3, M, N);
 
     //copy input to out tensors as this operation is inplace
     memcpy(**out_serial, **waves, 3*M*N*sizeof(double));
     memcpy(**out_parallel_1, **waves, 3*M*N*sizeof(double));
-    memcpy(**out_parallel_2, **waves, 3*M*N*sizeof(double));
     
     rounds = 1;
     warmup = 0;
 
-    Tensor3D<double> tmp = waves;
 
-    waves = out_serial;
+    Swap3DArray(waves, out_serial, 3, M);
     RunSerial();
+    Swap3DArray(waves, out_serial, 3, M);
 
-    waves = out_parallel_1;
+    Swap3DArray(waves, out_parallel_1, 3, M);
     RunParallel_1();
+    Swap3DArray(waves, out_parallel_1, 3, N);
 
-    // waves = out_parallel_2;
-    // RunParallel_2();
+
 
     bool is_valid = Compare3DArray(out_serial, out_parallel_1, 3, M, N);
-    //is_valid &= Compare3DArray(out_serial, out_parallel_2, 3, M, N);
 
-    waves = tmp;
     Free3DArray<double>(out_serial);
     Free3DArray<double>(out_parallel_1);
-    Free3DArray<double>(out_parallel_2);
 
     return is_valid;
 }
