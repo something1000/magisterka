@@ -250,6 +250,57 @@ inline bool Compare4DArray(Tensor4D<T> arr1, Tensor4D<T> arr2, int N, int M, int
     return result;
 }
 
+template<class T>
+inline void Swap2DArray(Tensor2D<T> a, Tensor2D<T> b, int M) {
+    for(int i=0; i < M; i++) {
+        auto tmp = a[i];
+        a[i] = b[i];
+        b[i] = tmp;
+    }
+    auto tmp = a;
+    a = b;
+    b = tmp;
+};
+
+template<class T>
+inline void Swap3DArray(Tensor3D<T> a, Tensor3D<T> b, int M, int N) {
+    for(int i=0; i < M; i++) {
+        for(int j=0; j < N; j++) {
+            auto tmp = a[i][j];
+            a[i][j] = b[i][j];
+            b[i][j] = tmp;
+        }
+        auto tmp = a[i];
+        a[i] = b[i];
+        b[i] = tmp;
+    }
+    auto tmp = a;
+    a = b;
+    b = tmp;
+};
+
+template<class T>
+inline void Swap4DArray(Tensor4D<T> a, Tensor4D<T> b, int M, int N, int K) {
+    for(int i=0; i < M; i++) {
+        for(int j=0; j < N; j++) {
+            for(int z=0; z < K; z++) {
+                auto tmp = a[i][j][z];
+                a[i][j][z] = b[i][j][z];
+                b[i][j][z] = tmp;
+            }
+            auto tmp = a[i][j];
+            a[i][j] = b[i][j];
+            b[i][j] = tmp;
+        }
+        auto tmp = a[i];
+        a[i] = b[i];
+        b[i] = tmp;
+    }
+    auto tmp = a;
+    a = b;
+    b = tmp;
+};
+
 inline void PrintArray(float* arr, int N) {
     for(int i=0; i < N; i++) {
         std::cout << (float)arr[i] << " ";
