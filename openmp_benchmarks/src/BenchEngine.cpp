@@ -39,8 +39,9 @@ void BenchEngine::Start(JsonPtr json) {
             if(bench->Validate()) {
                 Logger::INFO << "[" << name << "] " << "Successfully validated";
             } else {
-                Logger::INFO << "[" << name << "] " << "Validation failed";
+                Logger::ERROR << "[" << name << "] " << "Validation failed";
             }
+            Logger::INFO << "==============================================================";
         } else {
             Logger::INFO << "[" << name << "] " << "Starting benchmark";
             /* Benchmark Parallel Function With OpenMP */
