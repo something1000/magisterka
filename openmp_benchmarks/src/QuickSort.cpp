@@ -27,10 +27,10 @@ void ParallelQuicksortDouble(float* array, int left, int right, int node_id) {
     int nthreads = omp_get_num_threads();
     if ( left < right ) {
         float p = PartitionArray(array, left, right);
-        mpragma(omp task default(none) shared(array, left, p, node_id, nthreads) final(node_id >= nthreads)){
+        mpragma(omp task default(none) firstprivate(array, left, p, node_id, nthreads) final(node_id >= nthreads)){
             ParallelQuicksortDouble(array, left, p - 1, node_id*2);
         }
-        mpragma(omp task default(none) shared(array, right, p, node_id, nthreads) final(node_id >= nthreads)){
+        mpragma(omp task default(none) firstprivate(array, right, p, node_id, nthreads) final(node_id >= nthreads)){
             ParallelQuicksortDouble(array, p + 1, right, node_id*2+1);
         }
     }
