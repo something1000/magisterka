@@ -5,8 +5,8 @@
 
 using JsonBenchmark = rapidjson::Value::ConstValueIterator;
 
-void BenchEngine::Start(JsonPtr json) {
-    std::fstream excelStream("excelraport.csv", std::ios::out);
+void BenchEngine::Start(JsonPtr json, std::string out_log_path) {
+    std::fstream excelStream(out_log_path, std::ios::out);
     auto excel = Logger::EXCEL(excelStream);
 
     Logger::INFO << "Starting benchmark engine!";

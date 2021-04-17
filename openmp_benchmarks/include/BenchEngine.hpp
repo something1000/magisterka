@@ -13,8 +13,7 @@
  
 class BenchEngine {
     public:
-        static void Start(JsonPtr json);
-        static BenchmarkPtr GetBenchmark(std::string name); 
+        static void Start(JsonPtr json, std::string out_log_path);
     private:
 
 };

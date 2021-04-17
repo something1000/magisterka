@@ -9,14 +9,14 @@
 using namespace rapidjson;
 
 int main(int argc, char *argv[]) {
-   if (argc < 2) { //argument passed
-      std::cerr << "Provide descriptors for benchmarks!";
+   if (argc < 3) { //argument passed
+      std::cerr << "Provide descriptors and output log filename for benchmarks!";
       return -1;
    }
    auto file = argv[1];
    std::ifstream ifs {file};
    if (!ifs.is_open()) {
-      std::cerr << "Could not open file for reading!\n";
+      std::cerr << "Could not open descriptor for reading!\n";
       return -1;
    }
    
@@ -24,7 +24,9 @@ int main(int argc, char *argv[]) {
    std::shared_ptr<Document> doc = std::make_shared<Document>();
    doc->ParseStream( isw );
 
-   BenchEngine::Start(doc);
+   std::string out_log_path = argv[2];
+
+   BenchEngine::Start(doc, out_log_path);
 
    return 0;
 }
