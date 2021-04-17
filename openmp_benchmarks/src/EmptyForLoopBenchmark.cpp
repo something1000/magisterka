@@ -55,3 +55,9 @@ void EmptyForLoopBenchmark::Init(Logger::LoggerClass* file, const rapidjson::Val
     warmup = properties["warmup"].GetInt();
     iterations = properties["iterations"].GetInt();
 }
+
+static std::shared_ptr<Benchmark> CreateBench() {
+    return std::make_shared<EmptyForLoopBenchmark>("EmptyForLoopBenchmark");
+}
+
+REGISTER_BENCHMARK(EmptyForLoopBenchmark, CreateBench);

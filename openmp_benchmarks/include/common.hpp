@@ -25,7 +25,6 @@
 #define VAR_(X) #X":" << X << "_"
 #define IND(x) "[" << x << "]"
 
-typedef std::shared_ptr<Benchmark> BenchmarkPtr;
 typedef std::unordered_map<std::string, BenchmarkPtr> BenchmarkMap;
 typedef unsigned int uint;
 typedef rapidjson::Document Json;

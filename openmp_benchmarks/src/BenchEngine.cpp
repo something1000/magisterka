@@ -56,28 +56,3 @@ void BenchEngine::Start(JsonPtr json, std::string out_log_path) {
         }
      }
 }
-
-
-std::shared_ptr<Benchmark> BenchEngine::GetBenchmark(std::string name) {
-    std::shared_ptr<Benchmark> ptr;
-    if (name == "EmptyForLoopBenchmark")
-        ptr = std::make_shared<EmptyForLoopBenchmark>(name);
-    else if (name == "MatrixMultiplication")
-        ptr = std::make_shared<MatrixMultiplication>(name);
-    else if (name == "Convolution2D")
-        ptr = std::make_shared<Convolution2D>(name);
-    else if (name == "QuickSort")
-        ptr = std::make_shared<QuickSort>(name);
-    else if (name == "BatchNorm")
-        ptr = std::make_shared<BatchNorm>(name);
-    else if (name == "Activation")
-        ptr = std::make_shared<Activation>(name);
-    else if (name == "CooleyTukeyFFT")
-        ptr = std::make_shared<CooleyTukeyFFT>(name);
-    else if (name == "WaveEquation")
-        ptr = std::make_shared<WaveEquation>(name);
-    else
-        throw std::invalid_argument("No such benchmark as " + name);
-    
-    return ptr;
-}

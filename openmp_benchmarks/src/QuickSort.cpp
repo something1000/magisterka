@@ -181,3 +181,9 @@ void QuickSort::Reinitialize() {
     FillRandomArray(input_data, size);
     this->initialized = true;
 }
+
+static std::shared_ptr<Benchmark> CreateBench() {
+    return std::make_shared<QuickSort>("QuickSort");
+}
+
+REGISTER_BENCHMARK(QuickSort, CreateBench);

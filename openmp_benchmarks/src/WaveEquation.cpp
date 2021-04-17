@@ -304,3 +304,9 @@ void WaveEquation::Reinitialize() {
 
     initialized = true;
 }
+
+static std::shared_ptr<Benchmark> CreateBench() {
+    return std::make_shared<WaveEquation>("WaveEquation");
+}
+
+REGISTER_BENCHMARK(WaveEquation, CreateBench);

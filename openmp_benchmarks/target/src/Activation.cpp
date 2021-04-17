@@ -124,3 +124,9 @@ void Activation::Reinitialize() {
     FillRandomArray(input[0][0][0], N*C*H*W);
     this->initialized = true;
 }
+
+static std::shared_ptr<Benchmark> CreateBench() {
+    return std::make_shared<Activation>("Activation");
+}
+
+REGISTER_BENCHMARK(Activation, CreateBench);

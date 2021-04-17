@@ -2,14 +2,6 @@
 #define _BENCHENGINE_HPP
 #include "common.hpp"
 #include "Benchmark.hpp"
-#include "EmptyForLoopBenchmark.hpp"
-#include "MatrixMultiplication.hpp"
-#include "Convolution2D.hpp"
-#include "QuickSort.hpp"
-#include "BatchNorm.hpp"
-#include "Activation.hpp"
-#include "CooleyTukeyFFT.hpp"
-#include "WaveEquation.hpp"
  
 class BenchEngine {
     public:

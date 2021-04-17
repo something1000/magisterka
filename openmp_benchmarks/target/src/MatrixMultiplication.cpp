@@ -132,3 +132,9 @@ void MatrixMultiplication::Reinitialize() {
     std::memset(raw_result_ptr, 0, N * K * sizeof(float));
     this->initialized = true;
 }
+
+static std::shared_ptr<Benchmark> CreateBench() {
+    return std::make_shared<MatrixMultiplication>("MatrixMultiplication");
+}
+
+REGISTER_BENCHMARK(MatrixMultiplication, CreateBench);

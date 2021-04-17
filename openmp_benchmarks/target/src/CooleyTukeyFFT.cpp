@@ -263,3 +263,9 @@ void CooleyTukeyFFT::Reinitialize() {
 
     this->initialized = true;
 }
+
+static std::shared_ptr<Benchmark> CreateBench() {
+    return std::make_shared<CooleyTukeyFFT>("CooleyTukeyFFT");
+}
+
+REGISTER_BENCHMARK(CooleyTukeyFFT, CreateBench);

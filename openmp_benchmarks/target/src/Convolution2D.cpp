@@ -203,3 +203,9 @@ void Convolution2D::Reinitialize() {
 
     this->initialized = true;
 }
+
+static std::shared_ptr<Benchmark> CreateBench() {
+    return std::make_shared<Convolution2D>("Convolution2D");
+}
+
+REGISTER_BENCHMARK(Convolution2D, CreateBench);

@@ -211,3 +211,9 @@ void BatchNorm::Reinitialize() {
     FillRandomArray(beta, C);
     initialized = true;
 }
+
+static std::shared_ptr<Benchmark> CreateBench() {
+    return std::make_shared<BatchNorm>("BatchNorm");
+}
+
+REGISTER_BENCHMARK(BatchNorm, CreateBench);
