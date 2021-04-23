@@ -67,6 +67,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
     -DLLVM_TARGETS_TO_BUILD="X86;NVPTX" \
     -DLLVM_ENABLE_PROJECTS="clang;openmp" ../llvm/
 make -j4
+make install
 
 cd ..
 mkdir build2 && cd build2
@@ -81,7 +82,8 @@ cmake -DCMAKE_BUILD_TYPE=Release \
     -DLIBOMPTARGET_NVPTX_COMPUTE_CAPABILITIES=61 \
     -DLLVM_TARGETS_TO_BUILD="X86;NVPTX" \
     -DLLVM_ENABLE_PROJECTS="clang;openmp" ../llvm/
-
+make  -j4
+make install
 
 
 # ##################################################
