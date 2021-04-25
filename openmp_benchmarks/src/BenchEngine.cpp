@@ -5,7 +5,7 @@
 
 using JsonBenchmark = rapidjson::Value::ConstValueIterator;
 
-void BenchEngine::Start(JsonPtr json, std::string out_log_path) {
+void BenchEngine::Start(JsonPtr json, std::string out_log_path, bool skip_serial) {
     std::fstream excelStream(out_log_path, std::ios::out);
     auto excel = Logger::EXCEL(excelStream);
 
@@ -47,10 +47,13 @@ void BenchEngine::Start(JsonPtr json, std::string out_log_path) {
             /* Benchmark Parallel Function With OpenMP */
             bench->RunParallel();
             Logger::INFO << "[" << name << "] " << "Finished parallel benchmark";
-
-            /* Benchmark Serial Function */
-            bench->RunSerial();
-            Logger::INFO << "[" << name << "] " << "Finished serial benchmark";
+            if(!skip_serial) {
+                /* Benchmark Serial Function */
+                bench->RunSerial();
+                Logger::INFO << "[" << name << "] " << "Finished serial benchmark";
+            } else {
+                Logger::INFO << "[" << name << "] " << "Skipping serial benchmark";
+            }
             excel.newLine();
             Logger::INFO << "==============================================================";
         }

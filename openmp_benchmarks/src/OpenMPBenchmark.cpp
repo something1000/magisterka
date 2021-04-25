@@ -26,7 +26,17 @@ int main(int argc, char *argv[]) {
 
    std::string out_log_path = argv[2];
 
-   BenchEngine::Start(doc, out_log_path);
+   
+   bool skip_serial = false;
+   if (argc > 3) {
+      std::string skip_string(argv[3]);
+      if (skip_string == "skipserial") {
+         std::cout << "GOWNO";
+         skip_serial = true;
+      }
+   }
+
+   BenchEngine::Start(doc, out_log_path, skip_serial);
 
    return 0;
 }
