@@ -12,7 +12,7 @@ void WaveEquation::RunParallel() {
 void WaveEquation::RunParallel_1() {
     auto excel = *this->file;
     std::stringstream os;
-    os << VAR_(M) << VAR_(N) << VAR_(K) << VAR_(static_size) << "PARALLEL_OUTSIDE";
+    os << VAR_(M) << VAR_(N) << VAR_(K) << "PARALLEL_OUTSIDE";
     std::string name = os.str();
 
 
@@ -36,7 +36,7 @@ void WaveEquation::RunParallel_1() {
                         dst  = waves[(k + 2) % 3];
                     // }
                     //mpragma(omp barrier)
-                    mpragma(omp for schedule(static, static_size))
+                    mpragma(omp for schedule(static))
                     for(int i=1; i < M-1; i++) {
                         for(int j=1; j < N-1; j++) {
                             // z tlumieniem
@@ -62,7 +62,7 @@ void WaveEquation::RunParallel_1() {
 void WaveEquation::RunParallel_2() {
     auto excel = *this->file;
     std::stringstream os;
-    os << VAR_(M) << VAR_(N) << VAR_(K) << VAR_(static_size) << "PARALLEL_INSIDE";
+    os << VAR_(M) << VAR_(N) << VAR_(K) << "PARALLEL_INSIDE";
     std::string name = os.str();
 
     Tensor2D<double> src_2;
@@ -82,7 +82,7 @@ void WaveEquation::RunParallel_2() {
                 src_1 = waves[(k + 1) % 3];
                 dst  = waves[(k + 2) % 3];
 
-                mpragma(omp parallel for schedule(static, static_size))
+                mpragma(omp parallel for schedule(static))
                 for(int i=1; i < M-1; i++) {
                     for(int j=1; j < N-1; j++) {
                         // z tlumieniem
@@ -106,7 +106,7 @@ void WaveEquation::RunParallel_2() {
 void WaveEquation::RunSerial() {
     auto excel = *this->file;
     std::stringstream os;
-    os << VAR_(M) << VAR_(N) << VAR_(K) << VAR_(static_size) << "SERIAL";
+    os << VAR_(M) << VAR_(N) << VAR_(K) << "SERIAL";
     std::string name = os.str();
 
     Tensor2D<double> src_2;
@@ -193,8 +193,7 @@ void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& prope
     M = properties["M"].GetInt();
     N = properties["N"].GetInt();
     K = properties["K"].GetInt();
-    static_size = properties["static_size"].GetInt();
-    Logger::INFO << VAR(M) << VAR(N) << VAR(K) << VAR(static_size);
+    Logger::INFO << VAR(M) << VAR(N) << VAR(K);
 
     Reinitialize();
 }
