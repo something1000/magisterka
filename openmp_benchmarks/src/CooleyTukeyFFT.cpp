@@ -105,7 +105,7 @@ void CTFFT_Parallel_single(double* x, std::complex<double>* out, int N, int s, i
 }
 
 void CooleyTukeyFFT::RunParallel() {
-    RunParallel_Bad();
+    //RunParallel_Bad();
     RunParallel_Final();
     RunParallel_Single();
 }
