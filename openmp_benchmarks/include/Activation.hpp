@@ -17,8 +17,8 @@ class Activation : public Benchmark {
         virtual bool Validate() override;
         virtual ~Activation() {
             if(initialized) {
-                Free4DArray<float>(input);
-                Free4DArray<float>(output);
+                delete[] input;
+                delete[] output;
             }
         }
     private:
@@ -28,10 +28,9 @@ class Activation : public Benchmark {
         int rounds;
         int warmup;
         bool initialized = false;
-        int N,C,H,W;
-        int static_size;
-        Tensor4D<float> input;
-        Tensor4D<float> output;
+        int size, static_size;
+        float* input;
+        float* output;
 };
 
 #endif
