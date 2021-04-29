@@ -19,6 +19,7 @@
 #include "rapidjson/stringbuffer.h"
 #include <rapidjson/istreamwrapper.h>
 #include <omp.h>
+#include <random>
 
 #define PUT_BENCHMARK(NAME) {#NAME, std::make_shared<NAME>(#NAME)}
 #define VAR(X) #X":" << X << " "
@@ -129,39 +130,43 @@ void Free4DArray(T**** ptr) {
 
 
 inline void FillRandomArray(float* arr, int N, float min=-1, float max=1) {
-    std::srand(std::time(nullptr));
+    std::mt19937 generator(0);
+    std::uniform_int_distribution<int> distribution(0, RAND_MAX);
     for(int i=0; i < N; i++) {
-        arr[i] = (static_cast<float>(std::rand()) / (float) RAND_MAX) * (max - min) + min;
+        arr[i] = (static_cast<float>(distribution(generator)) / (float) RAND_MAX) * (max - min) + min;
     }
 }
 
 inline void FillRandom2DArray(float** arr, int N, int M, float min=-1, float max=1) {
-    std::srand(std::time(nullptr));
+    std::mt19937 generator(0);
+    std::uniform_int_distribution<int> distribution(0, RAND_MAX);
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
-            arr[i][j] = (static_cast<float>(std::rand()) / (float) RAND_MAX) * (max - min) + min;
+            arr[i][j] = (static_cast<float>(distribution(generator)) / (float) RAND_MAX) * (max - min) + min;
         }
     }
 }
 
 inline void FillRandom3DArray(float*** arr, int N, int M, int K, float min=-1, float max=1) {
-    std::srand(std::time(nullptr));
+    std::mt19937 generator(0);
+    std::uniform_int_distribution<int> distribution(0, RAND_MAX);
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
-                arr[i][j][l] = (static_cast<float>(std::rand()) / (float) RAND_MAX) * (max - min) + min;
+                arr[i][j][l] = (static_cast<float>(distribution(generator)) / (float) RAND_MAX) * (max - min) + min;
             }
         }
     }
 }
 
 inline void FillRandom4DArray(float**** arr, int N, int M, int K, int O, float min=-1, float max=1) {
-    std::srand(std::time(nullptr));
+    std::mt19937 generator(0);
+    std::uniform_int_distribution<int> distribution(0, RAND_MAX);
     for(int i=0; i < N; i++) {
         for(int j=0; j < M; j++) {
             for(int l=0; l < K; l++) {
                  for(int z=0; z < O; z++) {
-                    arr[i][j][l][z] = (static_cast<float>(std::rand()) / (float) RAND_MAX) * (max - min) + min;
+                    arr[i][j][l][z] = (static_cast<float>(distribution(generator)) / (float) RAND_MAX) * (max - min) + min;
                  }
             }
         }
