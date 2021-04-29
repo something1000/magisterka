@@ -1,0 +1,57 @@
+[
+    {
+        "name":"Activation",
+        "properties": {
+            "warmup": 5,
+            "rounds": 1000000,
+            "size":100000,
+            "static_size": 10
+        }
+    },
+    {
+        "name":"Activation",
+        "properties": {
+            "warmup": 5,
+            "rounds": 1000000,
+            "size":100000,
+            "static_size": 100
+        }
+    },
+    {
+        "name":"Activation",
+        "properties": {
+            "warmup": 5,
+            "rounds": 1000000,
+            "size":100000,
+            "static_size": 1000
+        }
+    },
+
+    {
+        "name":"Activation",
+        "properties": {
+            "warmup": 5,
+            "rounds": 100000,
+            "size":1000000,
+            "static_size": 1000
+        }
+    },
+    {
+        "name":"Activation",
+        "properties": {
+            "warmup": 5,
+            "rounds": 100000,
+            "size":1000000,
+            "static_size": 10000
+        }
+    },
+    {
+        "name":"Activation",
+        "properties": {
+            "warmup": 5,
+            "rounds": 100000,
+            "size":1000000,
+            "static_size": 100000
+        }
+    }
+]
