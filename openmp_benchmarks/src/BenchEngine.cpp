@@ -17,7 +17,7 @@ void BenchEngine::Start(JsonPtr json, std::string out_log_path, bool skip_serial
     }
 
     // Create Excel Columns Titles
-    excel << "Name" << "Warmup" << "Iterations" << "Duration" << "Mean" << "StdDev";
+    excel << "Name" << "Descriptor" << "Mode" << "Warmup" << "Iterations" << "Duration" << "Mean" << "StdDev";
     excel.newLine();
 
     for (JsonBenchmark itr = json->Begin(); itr != json->End(); ++itr) {

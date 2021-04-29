@@ -12,13 +12,10 @@ void Activation::RunParallel() {
 
 void Activation::RunParallel_1() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(size) << VAR_(static_size) << "PARALLEL";
-    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "PARALLEL",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -34,13 +31,10 @@ void Activation::RunParallel_1() {
 
 void Activation::RunParallel_2() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(size) << VAR_(static_size) << "PARALLEL_SIMD";
-    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "PARALLEL_SIMD",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -55,15 +49,10 @@ void Activation::RunParallel_2() {
 
 void Activation::RunSerial() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(size) << VAR_(static_size);
-    std::string descriptor = os.str();
-    std::string mode = "SERIAL";
     
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        descriptor,
-        mode,       // name of benchmark
+        "SERIAL",   // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -113,6 +102,10 @@ void Activation::Init(Logger::LoggerClass* file, const rapidjson::Value& propert
     size =  properties["size"].GetInt();
     static_size = properties["static_size"].GetInt();
     Logger::INFO << VAR(size) << VAR(static_size);
+
+    std::stringstream os;
+    os << VAR_(size) << VAR_(static_size);
+    descriptor = os.str();
 
     Reinitialize();
 }

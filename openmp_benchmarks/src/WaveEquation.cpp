@@ -11,9 +11,6 @@ void WaveEquation::RunParallel() {
 }
 void WaveEquation::RunParallel_1() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(M) << VAR_(N) << VAR_(K) << "PARALLEL_OUTSIDE";
-    std::string name = os.str();
 
 
     Tensor2D<double> src_2;
@@ -22,7 +19,7 @@ void WaveEquation::RunParallel_1() {
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "PARALLEL_OUTSIDE",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -61,9 +58,6 @@ void WaveEquation::RunParallel_1() {
 
 void WaveEquation::RunParallel_2() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(M) << VAR_(N) << VAR_(K) << "PARALLEL_INSIDE";
-    std::string name = os.str();
 
     Tensor2D<double> src_2;
     Tensor2D<double> src_1;
@@ -71,7 +65,7 @@ void WaveEquation::RunParallel_2() {
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "PARALLEL_INSIDE",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -105,16 +99,13 @@ void WaveEquation::RunParallel_2() {
 
 void WaveEquation::RunSerial() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(M) << VAR_(N) << VAR_(K) << "SERIAL";
-    std::string name = os.str();
 
     Tensor2D<double> src_2;
     Tensor2D<double> src_1;
     Tensor2D<double> dst;
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "SERIAL",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -194,6 +185,10 @@ void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& prope
     N = properties["N"].GetInt();
     K = properties["K"].GetInt();
     Logger::INFO << VAR(M) << VAR(N) << VAR(K);
+
+    std::stringstream os;
+    os << VAR_(M) << VAR_(N) << VAR_(K);
+    descriptor = os.str();
 
     Reinitialize();
 }

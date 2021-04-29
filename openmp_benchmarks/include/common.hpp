@@ -350,8 +350,9 @@ inline double VecStdDev(const std::vector<double>& vec) {
         double _Elapsed = end - start;                                                            \
         double Mean = VecMean(durations);                                                         \
         double StdDev = VecStdDev(durations);                                                     \
-        _Excel << this->name  << _Mode << _Warmup << _Rounds << _Elapsed << Mean << StdDev;       \
-        Logger::INFO << _Mode << " Warmup:" << _Warmup                                            \
+        _Excel << this->name << this->descriptor << _Mode                                         \
+               << _Warmup << _Rounds << _Elapsed << Mean << StdDev;                               \
+        Logger::INFO << this->descriptor << " " << _Mode << " Warmup:" << _Warmup                 \
                      << " Rounds: " << _Rounds << " Time: " << _Elapsed                           \
                      << " Mean: " << Mean << " StdDev: " << StdDev;
 

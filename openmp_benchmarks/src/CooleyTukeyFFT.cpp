@@ -112,13 +112,10 @@ void CooleyTukeyFFT::RunParallel() {
 
 void CooleyTukeyFFT::RunParallel_Bad() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(size) << "PARALLEL_BAD";
-    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "PARALLEL_BAD",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -134,13 +131,10 @@ void CooleyTukeyFFT::RunParallel_Bad() {
 
 void CooleyTukeyFFT::RunParallel_Final() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(size) << "PARALLEL_FINAL";
-    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "PARALLEL_FINAL",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -157,13 +151,10 @@ void CooleyTukeyFFT::RunParallel_Final() {
 
 void CooleyTukeyFFT::RunParallel_Single() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(size) << "PARALLEL_SINGLE_FINAL";
-    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "PARALLEL_SINGLE_FINAL",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -179,13 +170,10 @@ void CooleyTukeyFFT::RunParallel_Single() {
 
 void CooleyTukeyFFT::RunSerial() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(size) << "SERIAL";
-    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "SERIAL",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -254,6 +242,11 @@ void CooleyTukeyFFT::Init(Logger::LoggerClass* file, const rapidjson::Value& pro
     size = properties["size"].GetInt();//128;
 
     Logger::INFO << VAR(size);
+
+    std::stringstream os;
+    os << VAR_(size);
+    descriptor = os.str();
+
     Reinitialize();
 }
 

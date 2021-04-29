@@ -17,6 +17,7 @@ class Benchmark {
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) = 0;
     protected:
         std::string name = "Benchmark";
+        std::string descriptor = "";
 };
 
 

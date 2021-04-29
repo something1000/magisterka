@@ -9,14 +9,11 @@
 
 void BatchNorm::RunParallel() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(N) << VAR_(C) << VAR_(H) << VAR_(W) << "PARALLEL";
-    std::string name = os.str();
 
     float* norm_divider = new float[C];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "PARALLEL",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -87,14 +84,11 @@ void BatchNorm::RunParallel() {
 
 void BatchNorm::RunSerial() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(N) << VAR_(C) << VAR_(H) << VAR_(W) << "SERIAL";
-    std::string name = os.str();
 
     float* norm_divider = new float[C];
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "SERIAL",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -184,6 +178,10 @@ void BatchNorm::Init(Logger::LoggerClass* file, const rapidjson::Value& properti
     H = properties["H"].GetInt();
     W = properties["W"].GetInt();
     Logger::INFO << VAR(N) << VAR(C) << VAR(H) << VAR(W);
+
+    std::stringstream os;
+    os << VAR_(N) << VAR_(C) << VAR_(H) << VAR_(W);
+    descriptor = os.str();
 
     Reinitialize();
 }

@@ -10,13 +10,10 @@ void MatrixMultiplication::RunParallel() {
 
 void MatrixMultiplication::RunParallel_1() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(N) << VAR_(M) << VAR_(K) << "PARALLEL_COLLAPSE_STATIC";
-    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,                  // name of csv logger
-        name,                   // name of benchmark
+        "PARALLEL_COLLAPSE_STATIC",                   // name of benchmark
         warmup,                 // name of warmup rounds variable
         rounds,                 // name of benchmark rounds variable
         ELAPSED_Collapse,       // variable name to store execution time
@@ -36,14 +33,11 @@ void MatrixMultiplication::RunParallel_1() {
 
 void MatrixMultiplication::RunParallel_2() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(N) << VAR_(M) << VAR_(K) << "PARALLEL_STATIC";
-    std::string name = os.str();
 
     // second benchmark without collapse clause
     BENCHMARK_STRUCTURE(
         excel,              // name of csv logger
-        name,               // name of benchmark
+        "PARALLEL_STATIC",               // name of benchmark
         warmup,             // name of warmup rounds variable
         rounds,             // name of benchmark rounds variable
         ELAPSED,            // variable name to store execution time
@@ -64,13 +58,10 @@ void MatrixMultiplication::RunParallel_2() {
 
 void MatrixMultiplication::RunSerial() {
     auto excel = *this->file;
-    std::stringstream os;
-    os << VAR_(N) << VAR_(M) << VAR_(K) << "SERIAL";
-    std::string name = os.str();
 
     BENCHMARK_STRUCTURE(
         excel,      // name of csv logger
-        name,       // name of benchmark
+        "SERIAL",       // name of benchmark
         warmup,     // name of warmup rounds variable
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
@@ -124,6 +115,10 @@ void MatrixMultiplication::Init(Logger::LoggerClass* file, const rapidjson::Valu
     M = properties["M"].GetInt();
     K = properties["K"].GetInt();
     Logger::INFO << VAR(N) << VAR(M) << VAR(K);
+
+    std::stringstream os;
+    os << VAR_(N) << VAR_(M) << VAR_(K);
+    descriptor = os.str();
 
     Reinitialize();
 }
