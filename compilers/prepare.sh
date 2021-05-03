@@ -11,19 +11,20 @@ COMPILERS_PATH=$WORKDIR/compilers
 APPS_PATH=$WORKDIR/apps
 GCC_PATH=$COMPILERS_PATH/gcc_compiler
 CLANG_PATH=$COMPILERS_PATH/clang_compiler
+ICC_PATH=$COMPILERS_PATH/icc_compiler
 UTILS_PATH=$WORKDIR/utils
 
 
 echo "====Preparing folder structure====="
 
 rm -rf $COMPILERS_PATH
-rm -rf $GCC_PATH
 rm -rf $APPS_PATH
 rm -rf $UTILS_PATH
 mkdir -p $UTILS_PATH
 mkdir -p $APPS_PATH
 mkdir -p $GCC_PATH
 mkdir -p $CLANG_PATH
+mkdir -p $ICC_PATH
 
 cd $UTILS_PATH
 
@@ -104,6 +105,20 @@ cd build-gcc
     --prefix=$APPS_PATH
 make -j14
 make install
+
+echo "---- Build ICC -----"
+# # #
+conda create --name icc_compiler --yes
+conda activate icc_compiler
+conda install -c conda-forge fasttext --yes
+conda install cmake --yes
+conda install flex --yes
+
+cd $ICC_PATH
+wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17431/l_BaseKit_p_2021.1.0.2659_offline.sh
+sh l_BaseKit_p_2021.1.0.2659_offline.sh -s -a --silent --eula accept --install-dir $APPS_PATH --action install --components intel.oneapi.lin.dpcpp-cpp-compiler
+wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17764/l_HPCKit_p_2021.2.0.2997_offline.sh
+sh l_HPCKit_p_2021.2.0.2997_offline.sh -s -a --silent --eula accept --install-dir $APPS_PATH --action install --components intel.oneapi.lin.dpcpp-cpp-compiler-pro
 
 #export PATH=$APPS_PATH/bin:$PATH
 #export LD_LIBRARY_PATH=$APPS_PATH/lib:$LD_LIBRARY_PATH
