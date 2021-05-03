@@ -84,5 +84,14 @@
             "K": 100,
             "static_size":100
         }
+    },
+    {
+        "name":"PrimeTest",
+        "validate": true,
+        "properties": {
+            "warmup": 5,
+            "rounds": 10,
+            "size": 10000000
+        }
     }
 ]
