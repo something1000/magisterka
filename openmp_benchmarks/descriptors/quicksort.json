@@ -3,7 +3,7 @@
         "name":"QuickSort",
         "properties": {
             "warmup": 5,
-            "rounds": 10000,
+            "rounds": 1000,
             "size": 1000
         }
     },
