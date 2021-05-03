@@ -1,16 +1,16 @@
-#include "Activation.hpp"
+#include "Linear.hpp"
 #include <iostream>
 #include <omp.h>
 #include <cstring>
 #include <functional>
 
-void Activation::RunParallel() {
+void Linear::RunParallel() {
     RunParallel_1();
     RunParallel_2();
 }
 
 
-void Activation::RunParallel_1() {
+void Linear::RunParallel_1() {
     auto excel = *this->file;
 
     BENCHMARK_STRUCTURE(
@@ -22,14 +22,14 @@ void Activation::RunParallel_1() {
         {
             mpragma(omp parallel for schedule(static, static_size))
             for(int i=0; i < size; i++) {
-                input[i] = input[i] > 0 ? input[i] : 0;
+                output[i] = input[i]*13 + 2;
             }
         }
    )
 }
 
 
-void Activation::RunParallel_2() {
+void Linear::RunParallel_2() {
     auto excel = *this->file;
 
     BENCHMARK_STRUCTURE(
@@ -41,13 +41,13 @@ void Activation::RunParallel_2() {
         {
             mpragma(omp parallel for simd schedule(static, static_size))
             for(int i=0; i < size; i++) {
-                input[i] = input[i] > 0 ? input[i] : 0;
+                output[i] = input[i]*13 + 2;
             }
         }
    )
 }
 
-void Activation::RunSerial() {
+void Linear::RunSerial() {
     auto excel = *this->file;
     
     BENCHMARK_STRUCTURE(
@@ -58,13 +58,13 @@ void Activation::RunSerial() {
         ELAPSED,    // variable name to store execution time
         {
             for(int i=0; i < size; i++) {
-                input[i] = input[i] > 0 ? input[i] : 0;
+                output[i] = input[i]*13 + 2;
             }
         }
    )
 }
 
-bool Activation::Validate() {
+bool Linear::Validate() {
     float* out_serial = new float[size];
     float* out_parallel_1 = new float[size];
     float* out_parallel_2 = new float[size];
@@ -94,7 +94,7 @@ bool Activation::Validate() {
     return is_valid;
 }
 
-void Activation::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
+void Linear::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
     rounds = properties["rounds"].GetInt();
     warmup = properties["warmup"].GetInt();
@@ -110,7 +110,7 @@ void Activation::Init(Logger::LoggerClass* file, const rapidjson::Value& propert
     Reinitialize();
 }
 
-void Activation::Reinitialize() {
+void Linear::Reinitialize() {
     if(initialized) {
         delete[] input;
         delete[] output;
@@ -124,7 +124,7 @@ void Activation::Reinitialize() {
 }
 
 static std::shared_ptr<Benchmark> CreateBench() {
-    return std::make_shared<Activation>("Activation");
+    return std::make_shared<Linear>("Linear");
 }
 
-REGISTER_BENCHMARK(Activation, CreateBench);
+REGISTER_BENCHMARK(Linear, CreateBench);

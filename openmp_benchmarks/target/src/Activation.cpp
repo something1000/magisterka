@@ -1,19 +1,19 @@
-#include "Activation.hpp"
+#include "Linear.hpp"
 #include <iostream>
 #include <omp.h>
 #include <cstring>
 #include <functional>
 
-void Activation::RunParallel() {
+void Linear::RunParallel() {
     RunParallel_2();
     RunParallel_3();
 }
 
-void Activation::RunParallel_1() {
+void Linear::RunParallel_1() {
     // RunParallel_1 is not designed to run on gpu
 }
 
-void Activation::RunParallel_2() {
+void Linear::RunParallel_2() {
     auto excel = *this->file;
 
     auto fn = [&]() {
@@ -32,7 +32,7 @@ void Activation::RunParallel_2() {
 }
 
 
-void Activation::RunParallel_3() {
+void Linear::RunParallel_3() {
     auto excel = *this->file;
 
     auto fn = [&]() {
@@ -49,7 +49,7 @@ void Activation::RunParallel_3() {
     BenchmarkIt(excel, "PARALLEL_FOR_SIMD", warmup, rounds, fn);
 }
 
-void Activation::RunSerial() {
+void Linear::RunSerial() {
     auto excel = *this->file;
 
     auto fn = [&]() {
@@ -63,7 +63,7 @@ void Activation::RunSerial() {
     BenchmarkIt(excel, "SERIAL", warmup, rounds, fn);
 }
 
-bool Activation::Validate() {
+bool Linear::Validate() {
     Tensor4D<float> out_serial = Create4DArray<float>(N, C, H, W);
    // Tensor4D<float> out_parallel_1 = Create4DArray<float>(N, C, H, W);
     Tensor4D<float> out_parallel_2 = Create4DArray<float>(N, C, H, W);
@@ -97,7 +97,7 @@ bool Activation::Validate() {
     return is_valid;
 }
 
-void Activation::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
+void Linear::Init(Logger::LoggerClass* file, const rapidjson::Value& properties) {
     this->file = file;
     rounds = properties["rounds"].GetInt();
     warmup = properties["warmup"].GetInt();
@@ -112,7 +112,7 @@ void Activation::Init(Logger::LoggerClass* file, const rapidjson::Value& propert
     Reinitialize();
 }
 
-void Activation::Reinitialize() {
+void Linear::Reinitialize() {
     if(initialized) {
         Free4DArray<float>(input);
         Free4DArray<float>(output);
@@ -126,7 +126,7 @@ void Activation::Reinitialize() {
 }
 
 static std::shared_ptr<Benchmark> CreateBench() {
-    return std::make_shared<Activation>("Activation");
+    return std::make_shared<Linear>("Linear");
 }
 
-REGISTER_BENCHMARK(Activation, CreateBench);
+REGISTER_BENCHMARK(Linear, CreateBench);

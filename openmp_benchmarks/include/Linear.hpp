@@ -1,11 +1,11 @@
-#ifndef _ACTIVATION_HPP
-#define _ACTIVATION_HPP
+#ifndef _LINEAR_HPP
+#define _LINEAR_HPP
 #include "Benchmark.hpp"
 #include "common.hpp"
 
-class Activation : public Benchmark {
+class Linear : public Benchmark {
     public:
-        Activation(std::string name) {
+        Linear(std::string name) {
             this->name = name;
         };
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
@@ -15,7 +15,7 @@ class Activation : public Benchmark {
         void RunParallel_2();
         void RunParallel_3();
         virtual bool Validate() override;
-        virtual ~Activation() {
+        virtual ~Linear() {
             if(initialized) {
                 delete[] input;
                 delete[] output;

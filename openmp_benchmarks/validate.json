@@ -52,15 +52,12 @@
         }
     },
     {
-        "name":"Activation",
+        "name":"Linear",
         "validate": true,
         "properties": {
             "warmup": 5,
             "rounds": 1000,
-            "N": 32,
-            "C": 3,
-            "H": 224,
-            "W": 224,
+            "size": 10000,
             "static_size": 100
         }
     },

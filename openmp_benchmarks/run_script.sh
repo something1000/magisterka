@@ -4,7 +4,7 @@ set -uex
 
 num_cpus=$(grep -c ^processor /proc/cpuinfo)
 
-benchmarks=(activation batchnorm conv ctfft emptyloop matmul quicksort wave)
+benchmarks=(linear batchnorm conv ctfft emptyloop matmul quicksort wave)
 
 
 for b in ${benchmarks[@]}
