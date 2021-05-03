@@ -129,6 +129,14 @@ void Free4DArray(T**** ptr) {
 };
 
 
+inline void FillRandomArray(int* arr, int N, int min=-1, int max=1) {
+    std::mt19937 generator(0);
+    std::uniform_int_distribution<int> distribution(min, max);
+    for(int i=0; i < N; i++) {
+        arr[i] = distribution(generator);
+    }
+}
+
 inline void FillRandomArray(float* arr, int N, float min=-1, float max=1) {
     std::mt19937 generator(0);
     std::uniform_int_distribution<int> distribution(0, RAND_MAX);
