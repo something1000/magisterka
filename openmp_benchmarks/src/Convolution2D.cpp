@@ -83,6 +83,42 @@ void Convolution2D::RunParallel_2() {
     )
 }
 
+void Convolution2D::RunParallel_3() {
+    auto excel = *this->file;
+
+    const int H = this->H;
+    const int W = this->W;
+    const int kernel = this->kernel;
+    const int kernel_center = kernel/2;
+
+    BENCHMARK_STRUCTURE(
+        excel,      // name of csv logger
+        "PARALLEL_NO_COLLAPSE",       // name of benchmark
+        warmup,     // name of warmup rounds variable
+        rounds,     // name of benchmark rounds variable
+        ELAPSED_3,    // variable name to store execution time
+        {
+
+            mpragma(omp parallel for)
+            for(int batch=0; batch < N; ++batch) {
+                for(int y=kernel_center; y < H - kernel_center; ++y) {
+                    for(int x=kernel_center; x < W - kernel_center; ++x) {
+                        result[batch][y-kernel_center][x-kernel_center] = 0.0f;
+                        for(int ky=0; ky < kernel; ++ky) {
+                            for(int kx=0; kx < kernel; ++kx) {
+
+                                int input_index_y = y + (kernel_center - ky);
+                                int input_index_x = x + (kernel_center - kx);
+                                result[batch][y-kernel_center][x-kernel_center] += input_data[batch][input_index_y][input_index_x] * kernel_data[ky][kx];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    )
+}
+
 void Convolution2D::RunSerial() {
     auto excel = *this->file;
 
@@ -127,6 +163,7 @@ bool Convolution2D::Validate() {
     Tensor3D<float> out_serial = Create3DArray<float>(N, res_rows, res_cols);
     Tensor3D<float> out_parallel_1 = Create3DArray<float>(N, res_rows, res_cols);
     Tensor3D<float> out_parallel_2 = Create3DArray<float>(N, res_rows, res_cols);
+    Tensor3D<float> out_parallel_3 = Create3DArray<float>(N, res_rows, res_cols);
     rounds = 1;
     warmup = 0;
 
@@ -142,12 +179,18 @@ bool Convolution2D::Validate() {
     RunParallel_2();
     Swap3DArray(result, out_parallel_2, N, res_rows);
 
+    Swap3DArray(result, out_parallel_3, N, res_rows);
+    RunParallel_3();
+    Swap3DArray(result, out_parallel_3, N, res_rows);
+
     bool is_valid = Compare3DArray(out_serial, out_parallel_1, N, res_rows, res_cols);
     is_valid = is_valid && Compare3DArray(out_serial, out_parallel_2, N, res_rows, res_cols);
+    is_valid = is_valid && Compare3DArray(out_serial, out_parallel_3, N, res_rows, res_cols);
 
     Free3DArray<float>(out_serial);
     Free3DArray<float>(out_parallel_1);
     Free3DArray<float>(out_parallel_2);
+    Free3DArray<float>(out_parallel_3);
     return is_valid;
 }
 

@@ -12,6 +12,7 @@ class Convolution2D : public Benchmark {
         virtual void RunParallel() override;
         void RunParallel_1();
         void RunParallel_2();
+        void RunParallel_3();
         virtual void Init(Logger::LoggerClass* file, const rapidjson::Value& properties) override;
         virtual bool Validate() override;
         virtual ~Convolution2D() {
