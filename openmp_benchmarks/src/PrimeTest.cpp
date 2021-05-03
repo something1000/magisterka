@@ -178,7 +178,7 @@ void PrimeTest::Reinitialize() {
     input = new int[size];
     output = new bool[size];
 
-    FillRandomArray(input, size, 0, 100000);
+    FillRandomArray(input, size, 0, 1000000);
     this->initialized = true;
 }
 
