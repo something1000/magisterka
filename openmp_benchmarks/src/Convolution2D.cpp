@@ -6,6 +6,7 @@
 void Convolution2D::RunParallel() {
     RunParallel_1();
     RunParallel_2();
+    RunParallel_3();
 }
 
 void Convolution2D::RunParallel_1() {
