@@ -3,7 +3,7 @@
         "name":"BatchNorm",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 4000,
             "N": 32,
             "C": 1,
             "H": 224,
@@ -47,7 +47,7 @@
         "name":"BatchNorm",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 2000,
             "N": 32,
             "C": 2048,
             "H": 7,

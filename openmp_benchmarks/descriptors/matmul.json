@@ -13,7 +13,7 @@
         "name":"MatrixMultiplication",
         "properties": {
             "warmup": 5,
-            "rounds": 5000,
+            "rounds": 15000,
             "N": 100,
             "M": 100,
             "K": 100

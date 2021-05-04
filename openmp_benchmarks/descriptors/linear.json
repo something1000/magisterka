@@ -12,7 +12,7 @@
         "name":"Linear",
         "properties": {
             "warmup": 5,
-            "rounds": 100000,
+            "rounds": 300000,
             "size":100000,
             "static_size": 100
         }
