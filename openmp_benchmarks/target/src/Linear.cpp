@@ -18,7 +18,7 @@ void Linear::RunParallel_1() {
         int _static_size = static_size; // fix for gcc bug - cant use class fields inside pragma region
         float* raw_input = input;
         float* raw_output = output;
-        #pragma omp target teams distribute parallel for schedule(static, _static_size) \
+        #pragma omp target teams distribute parallel for dist_schedule(static, _static_size) \
                 map(tofrom:raw_input[0:_size]) map(tofrom:raw_output[0:_size])
             for(int i=0; i < _size; i++) {
             raw_output[i] = raw_input[i]*13 + 2;
@@ -34,9 +34,10 @@ void Linear::RunParallel_2() {
 
     auto fn = [&]() {
         int _size = size;
+	int _static_size = static_size;
         float* raw_input = input;
         float* raw_output = output;
-        #pragma omp target teams distribute parallel for simd schedule(static, _static_size) \
+        #pragma omp target teams distribute parallel for simd dist_schedule(static, _static_size) \
                 map(tofrom:raw_input[0:_size]) map(tofrom:raw_output[0:_size])
             for(int i=0; i < _size; i++) {
             raw_output[i] = raw_input[i]*13 + 2;

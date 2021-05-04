@@ -54,10 +54,10 @@ echo "----Build LLVM with support for offloading to NVIDIA GPUs.-----"
 
 cd $CLANG_PATH
 git clone https://github.com/llvm/llvm-project.git --branch llvmorg-11.1.0 llvm
-cd llvm
-mkdir build && cd build
+mkdir build
+cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_INSTALL_PREFIX=$APPS_PATH \
+    -DCMAKE_INSTALL_PREFIX=$APPS_PATH \
     -DLIBOMPTARGET_DEP_LIBELF_INCLUDE_DIR:PATH=$APPS_PATH/include \
     -DLIBOMPTARGET_DEP_LIBELF_LIBRARIES:PATH=$APPS_PATH/lib/libelf.so \
     -DLIBOMPTARGET_DEP_LIBFFI_INCLUDE_DIR:PATH=$APPS_PATH/include \
@@ -65,15 +65,15 @@ cmake -DCMAKE_BUILD_TYPE=Release \
     -DCLANG_OPENMP_NVPTX_DEFAULT_ARCH=sm_61 \
     -DLIBOMPTARGET_NVPTX_COMPUTE_CAPABILITIES=61 \
     -DLLVM_TARGETS_TO_BUILD="X86;NVPTX" \
-    -DLLVM_ENABLE_PROJECTS="clang;openmp" ../llvm/
+    -DLLVM_ENABLE_PROJECTS="clang;openmp" ../llvm/llvm
 make -j4
-make install
 
 cd ..
-mkdir build2 && cd build2
+mkdir build2
+cd build2
 CC=../build/bin/clang CXX=../build/bin/clang++  \
 cmake -DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_INSTALL_PREFIX=$APPS_PATH \
+    -DCMAKE_INSTALL_PREFIX=$APPS_PATH \
     -DLIBOMPTARGET_DEP_LIBELF_INCLUDE_DIR:PATH=$APPS_PATH/include \
     -DLIBOMPTARGET_DEP_LIBELF_LIBRARIES:PATH=$APPS_PATH/lib/libelf.so \
     -DLIBOMPTARGET_DEP_LIBFFI_INCLUDE_DIR:PATH=$APPS_PATH/include \
@@ -81,7 +81,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
     -DCLANG_OPENMP_NVPTX_DEFAULT_ARCH=sm_61 \
     -DLIBOMPTARGET_NVPTX_COMPUTE_CAPABILITIES=61 \
     -DLLVM_TARGETS_TO_BUILD="X86;NVPTX" \
-    -DLLVM_ENABLE_PROJECTS="clang;openmp" ../llvm/
+    -DLLVM_ENABLE_PROJECTS="clang;openmp" ../llvm/llvm
 make  -j4
 make install
 
@@ -95,6 +95,7 @@ echo "----Build GCC with support for offloading to NVIDIA GPUs.-----"
 conda create --name gcc_offload --yes
 conda activate gcc_offload
 conda install -c conda-forge fasttext --yes
+conda install -c conda-forge flex --yes
 # Location of the installed CUDA toolkit
 CUDA_PATH=/usr/local/cuda
 
@@ -135,6 +136,18 @@ cd build-nvptx-gcc
    --prefix=$APPS_PATH
 make -j4
 make install
-
+cd ..
+mkdir build-host-gcc
+cd  build-host-gcc
+../gcc/configure \
+    --enable-offload-targets=nvptx-none \
+    --with-cuda-driver-include=$CUDA_PATH/include \
+    --with-cuda-driver-lib=$CUDA_PATH/lib64 \
+    --disable-bootstrap \
+    --disable-multilib \
+    --enable-languages="c,c++,fortran,lto" \
+    --prefix=$APPS_PATH
+make -j4
+make install
 #export PATH=$APPS_PATH/bin:$PATH
 #export LD_LIBRARY_PATH=$APPS_PATH/lib:$LD_LIBRARY_PATH

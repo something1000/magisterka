@@ -16,7 +16,6 @@ void WaveEquation::RunParallel_1() {
 
     auto fn = [&]() {
         int _M = M; int _N = N; int _K = K;
-        int _static_size = static_size;
         int size = 3 * M * N;
         int _px = px; int _py = py;
         double* raw_src = waves[0][0];
@@ -29,7 +28,7 @@ void WaveEquation::RunParallel_1() {
                 src_2 = raw_src + (t % 3) * _M * _N; //
                 src_1 = raw_src +((t + 1) % 3) * _M * _N;
                 dst  = raw_src + ((t + 2) % 3) * _M * _N;
-                #pragma omp target teams distribute parallel for schedule(static, _static_size) collapse(2)
+                #pragma omp target teams distribute parallel for schedule(static) collapse(2)
                 for(int i=1; i < _M-1; i++) {
                     for(int j=1; j < _N-1; j++) {
                         // z tlumieniem
@@ -141,7 +140,6 @@ void WaveEquation::Init(Logger::LoggerClass* file, const rapidjson::Value& prope
     M = properties["M"].GetInt();
     N = properties["N"].GetInt();
     K = properties["K"].GetInt();
-    static_size = properties["static_size"].GetInt();
     Logger::INFO << VAR(M) << VAR(N) << VAR(K);
 
     Reinitialize();
