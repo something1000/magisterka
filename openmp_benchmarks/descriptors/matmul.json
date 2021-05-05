@@ -3,7 +3,7 @@
         "name":"MatrixMultiplication",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 500,
             "N": 10000,
             "M": 10000,
             "K": 1
@@ -23,7 +23,7 @@
         "name":"MatrixMultiplication",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 300,
             "N": 500,
             "M": 500,
             "K": 500
@@ -33,7 +33,7 @@
         "name":"MatrixMultiplication",
         "properties": {
             "warmup": 5,
-            "rounds": 200,
+            "rounds": 50,
             "N": 1000,
             "M": 1000,
             "K": 1000

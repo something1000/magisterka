@@ -3,7 +3,7 @@
         "name":"Convolution2D",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 300,
             "N": 32,
             "H": 224,
             "W": 224,
@@ -14,7 +14,7 @@
         "name":"Convolution2D",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 500,
             "N": 256,
             "H": 112,
             "W": 112,
@@ -25,7 +25,7 @@
         "name":"Convolution2D",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 2000,
             "N": 64,
             "H": 56,
             "W": 56,
@@ -36,7 +36,7 @@
         "name":"Convolution2D",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 4000,
             "N": 512,
             "H": 14,
             "W": 14,
@@ -47,7 +47,7 @@
         "name":"Convolution2D",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 4000,
             "N": 1024,
             "H": 7,
             "W": 7,
