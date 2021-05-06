@@ -16,8 +16,10 @@ void MatrixMultiplication::RunParallel_1() {
         float* raw_result_ptr = result[0];
         float* raw_A = sourceA[0];
         float* raw_B = sourceB[0];
-        #pragma omp target teams distribute parallel for collapse(2) schedule(static) \
-                map(tofrom:raw_A[0:N*M],raw_B[0:M*K]) map(tofrom:raw_result_ptr[0:N*K])
+        #pragma omp target enter data map(to:raw_A[0:N*M],raw_B[0:M*K]) \
+                                      map(alloc:raw_result_ptr[0:N*K])
+        {
+        #pragma omp target teams distribute parallel for collapse(2) schedule(static)
             for(int i=0; i < X; i++) {
                 for(int j=0; j < Z; j++) {
                     raw_result_ptr[i*Z+j] = 0.0f;
@@ -26,6 +28,14 @@ void MatrixMultiplication::RunParallel_1() {
                     }
                 }
             }
+        }
+        #if defined(__clang__) 
+            #pragma omp target exit data map(from:raw_result_ptr[0:N*K])
+
+        #else
+            #pragma omp target update from(raw_result_ptr[0:N*K])
+            #pragma omp target exit data map(delete:raw_result_ptr, raw_A, raw_B)
+	    #endif
     };
 
     BenchmarkIt(excel, "Parallel_Collapse", warmup, rounds, fn);
@@ -40,8 +50,10 @@ void MatrixMultiplication::RunParallel_2() {
         float* raw_result_ptr = result[0];
         float* raw_A = sourceA[0];
         float* raw_B = sourceB[0];
-        #pragma omp target teams distribute parallel for schedule(static)\
-                map(tofrom:raw_A[0:N*M],raw_B[0:M*K]) map(tofrom:raw_result_ptr[0:N*K])
+        #pragma omp target enter data map(to:raw_A[0:N*M],raw_B[0:M*K]) \
+                                      map(alloc:raw_result_ptr[0:N*K])
+        {
+        #pragma omp target teams distribute parallel for schedule(static)
             for(int i=0; i < X; i++) {
                 for(int j=0; j < Z; j++) {
                     raw_result_ptr[i*Z+j] = 0.0f;
@@ -50,6 +62,14 @@ void MatrixMultiplication::RunParallel_2() {
                     }
                 }
             }
+        }
+        #if defined(__clang__) 
+            #pragma omp target exit data map(from:raw_result_ptr[0:N*K])
+
+        #else
+            #pragma omp target update from(raw_result_ptr[0:N*K])
+            #pragma omp target exit data map(delete:raw_result_ptr, raw_A, raw_B)
+	    #endif
     };
 
     BenchmarkIt(excel, "Parallel_Normal", warmup, rounds, fn);

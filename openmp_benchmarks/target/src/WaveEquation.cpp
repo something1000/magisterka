@@ -45,7 +45,12 @@ void WaveEquation::RunParallel_1() {
                 }
             }
         }
-        #pragma omp target exit data map(from:raw_src[0:size])
+        #if defined(__clang__) 
+            #pragma omp target exit data map(from:raw_src[0:size])
+        #else
+            #pragma omp target update from(raw_src[0:size])
+            #pragma omp target exit data map(delete:raw_src)
+	    #endif
 
     };
 
