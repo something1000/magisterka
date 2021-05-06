@@ -15,14 +15,34 @@ void Linear::RunParallel_1() {
 
     auto fn = [&]() {
         int _size = size;
-        int _static_size = static_size; // fix for gcc bug - cant use class fields inside pragma region
         float* raw_input = input;
         float* raw_output = output;
-        #pragma omp target teams distribute parallel for dist_schedule(static, _static_size) \
+        #if defined(__clang__)
+	/*
+	 * compiled code from 'else' branch with clang:
+	 * Libomptarget fatal error 1: failure of target construct while offloading is mandatory
+	 */
+	    #pragma omp target teams distribute parallel for \
                 map(tofrom:raw_input[0:_size]) map(tofrom:raw_output[0:_size])
-            for(int i=0; i < _size; i++) {
-            raw_output[i] = raw_input[i]*13 + 2;
+            for (int i=0; i < _size; i++) {
+                raw_output[i] = raw_input[i]*13 + 2;
             }
+       #else
+	/* above code produces memory leaks when compiled with gcc
+	 *
+	 */
+            #pragma omp target enter data map(to: raw_input[0:_size]) map(alloc: raw_output[0:_size])
+            #pragma omp target //data map(from: raw_output[0:_size])
+            {
+                #pragma omp teams distribute parallel for
+                for (int i=0; i < _size; i++) {
+                    raw_output[i] = raw_input[i]*13 + 2;
+                }
+            }
+            #pragma omp target update from(raw_output[0:_size])
+            #pragma omp target exit data map(delete: raw_output) map(delete:raw_input)
+       #endif
+
     };
 
     BenchmarkIt(excel, "PARALLEL_FOR", warmup, rounds, fn);
@@ -34,14 +54,28 @@ void Linear::RunParallel_2() {
 
     auto fn = [&]() {
         int _size = size;
-	int _static_size = static_size;
         float* raw_input = input;
         float* raw_output = output;
-        #pragma omp target teams distribute parallel for simd dist_schedule(static, _static_size) \
+       #if defined(__clang__)
+            #pragma omp target teams distribute parallel for simd \
                 map(tofrom:raw_input[0:_size]) map(tofrom:raw_output[0:_size])
-            for(int i=0; i < _size; i++) {
-            raw_output[i] = raw_input[i]*13 + 2;
+            for (int i=0; i < _size; i++) {
+                raw_output[i] = raw_input[i]*13 + 2;
             }
+       #else
+
+            #pragma omp target enter data map(to: raw_input[0:_size]) map(alloc: raw_output[0:_size])
+            #pragma omp target //data map(from: raw_output[0:_size])
+            {
+                #pragma omp teams distribute parallel for simd
+                for (int i=0; i < _size; i++) {
+                    raw_output[i] = raw_input[i]*13 + 2;
+                }
+            }
+            #pragma omp target update from(raw_output[0:_size])
+            #pragma omp target exit data map(delete: raw_output) map(delete:raw_input)
+       #endif
+
     };
 
     BenchmarkIt(excel, "PARALLEL_FOR_SIMD", warmup, rounds, fn);
@@ -97,11 +131,10 @@ void Linear::Init(Logger::LoggerClass* file, const rapidjson::Value& properties)
     warmup = properties["warmup"].GetInt();
 
     size =  properties["size"].GetInt();
-    static_size = properties["static_size"].GetInt();
-    Logger::INFO << VAR(size) << VAR(static_size);
+    Logger::INFO << VAR(size);
 
     std::stringstream os;
-    os << VAR_(size) << VAR_(static_size);
+    os << VAR_(size);
     descriptor = os.str();
 
     Reinitialize();
