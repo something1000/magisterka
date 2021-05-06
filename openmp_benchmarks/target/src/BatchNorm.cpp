@@ -79,8 +79,14 @@ void BatchNorm::RunParallel() {
                 }
             }
         }
-        #pragma omp target exit data map(from:raw_output[0:size]) \
-                                     map(from: _variance[0:_C], _mean[0:_C], _norm_divider[0:_C])
+        #if defined(__clang__) 
+	    #pragma omp target exit data map(from:raw_output[0:size]) \
+                                         map(from: _variance[0:_C], _mean[0:_C], _norm_divider[0:_C])
+
+	#else
+	    #pragma omp target update from(raw_output[0:size], _variance[0:_C], _mean[0:_C], _norm_divider[0:_C])
+            #pragma omp target exit data map(delete:raw_output, raw_input, _beta, _gamma, _variance, _mean, _norm_divider)
+	#endif
     };
 
     BenchmarkIt(excel, "RunParallel_opt", warmup, rounds, fn);
