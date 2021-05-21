@@ -45,6 +45,9 @@ done
 if [[ "$COMPILER" = "icc" ]] ; then
     export CC=icc
     export CXX=icpc
+elif [[ "$COMPILER" = "icx" ]] ; then
+    export CC=icx
+    export CXX=icpx
 elif [[ "$COMPILER" = "clang" ]] ; then
     export CC=clang
     export CXX=clang++

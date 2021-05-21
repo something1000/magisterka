@@ -1,4 +1,4 @@
-set -uex
+set -ex +u
 
 eval "$(conda shell.bash hook)"
 conda create --name clang_compiler --yes
@@ -116,9 +116,9 @@ conda install flex --yes
 
 cd $ICC_PATH
 wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17431/l_BaseKit_p_2021.1.0.2659_offline.sh
-sh l_BaseKit_p_2021.1.0.2659_offline.sh -s -a --silent --eula accept --install-dir $APPS_PATH --action install --components intel.oneapi.lin.dpcpp-cpp-compiler
+sh l_BaseKit_p_2021.1.0.2659_offline.sh -s -f $ICC_PATH -r yes -a --silent --eula accept --install-dir $APPS_PATH --action install --components intel.oneapi.lin.dpcpp-cpp-compiler --download-cache $ICC_PATH
 wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17764/l_HPCKit_p_2021.2.0.2997_offline.sh
-sh l_HPCKit_p_2021.2.0.2997_offline.sh -s -a --silent --eula accept --install-dir $APPS_PATH --action install --components intel.oneapi.lin.dpcpp-cpp-compiler-pro
+sh l_HPCKit_p_2021.2.0.2997_offline.sh -s -f $ICC_PATH -r yes -a --silent --eula accept --install-dir $APPS_PATH --action install --components intel.oneapi.lin.dpcpp-cpp-compiler-pro --download-cache $ICC_PATH
 
 #export PATH=$APPS_PATH/bin:$PATH
 #export LD_LIBRARY_PATH=$APPS_PATH/lib:$LD_LIBRARY_PATH
