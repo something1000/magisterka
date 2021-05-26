@@ -9,11 +9,27 @@ void QuickSort::RunParallel() {
     RunParallelSingle();
 }
 
+float PartitionArrayHelper(float *inarray, float* outarray, int left, int right) {
+    float partitionValue = inarray[right];
+    int currentPosition = left - 1;
+    outarray[0] = inarray[0];
+    for(int i=left; i < right; i++) {
+	outarray[i] = inarray[i];
+        if (outarray[i] < partitionValue) {
+            currentPosition++;
+            std::swap(outarray[i], outarray[currentPosition]);
+        }
+    }
+    outarray[right] = outarray[currentPosition + 1];
+    outarray[currentPosition + 1] = inarray[right];
+    return currentPosition + 1;
+}
+
 float PartitionArray(float *array, int left, int right) {
     float partitionValue = array[right];
 
     int currentPosition = left - 1;
-    for(int i=left; i < right - 1; i++) {
+    for(int i=left; i < right; i++) {
         if (array[i] < partitionValue) {
             currentPosition++;
             std::swap(array[i], array[currentPosition]);
@@ -27,14 +43,28 @@ void ParallelQuicksortDouble(float* array, int left, int right, int node_id) {
     int nthreads = omp_get_num_threads();
     if ( left < right ) {
         float p = PartitionArray(array, left, right);
-        mpragma(omp task default(none) firstprivate(array, left, p, node_id, nthreads) final(node_id - 1 >= nthreads)){
+        mpragma(omp task default(none) firstprivate(array, left, p, node_id, nthreads) final(node_id >= nthreads)){
             ParallelQuicksortDouble(array, left, p - 1, node_id*2);
         }
-        mpragma(omp task default(none) firstprivate(array, right, p, node_id, nthreads) final(node_id - 1 >= nthreads)){
+        mpragma(omp task default(none) firstprivate(array, right, p, node_id, nthreads) final(node_id >= nthreads)){
             ParallelQuicksortDouble(array, p + 1, right, node_id*2+1);
         }
     }
 }
+
+void ParallelQuicksortDoubleHelper(float* original, float* copy, int left, int right, int node_id) {
+    int nthreads = omp_get_num_threads();
+    if ( left < right ) {
+        float p = PartitionArrayHelper(original, copy, left, right);
+        mpragma(omp task default(none) firstprivate(copy, left, p, node_id, nthreads) final(node_id >= nthreads)){
+            ParallelQuicksortDouble(copy, left, p - 1, node_id*2);
+        }
+        mpragma(omp task default(none) firstprivate(copy, right, p, node_id, nthreads) final(node_id >= nthreads)){
+            ParallelQuicksortDouble(copy, p + 1, right, node_id*2+1);
+        }
+    }
+}
+
 
 void QuickSort::RunParallelDouble() {
     auto excel = *this->file;
@@ -46,10 +76,9 @@ void QuickSort::RunParallelDouble() {
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
         {
-            std::memcpy(data, input_data, size * sizeof(float));
-            mpragma(omp parallel shared(data, size)) {
+            mpragma(omp parallel shared(output_data, input_data, size)) {
                 mpragma(omp single) {
-                    ParallelQuicksortDouble(data, 0, size-1, 1);
+                    ParallelQuicksortDoubleHelper(input_data, output_data, 0, size-1, 1);
                 }
                 mpragma(omp taskwait)
             }
@@ -59,18 +88,30 @@ void QuickSort::RunParallelDouble() {
 //    std::cout << "\n\n=============\n\n";
 }
 
-
 void ParallelQuicksortSingle(float* array, int left, int right, int node_id) {
     int nthreads = omp_get_num_threads();
     if ( left < right ) {
 
         float p = PartitionArray(array, left, right);
-        mpragma(omp task default(none) firstprivate(array, left, p, node_id, nthreads) final(node_id - 1 >= nthreads)){
+        mpragma(omp task default(none) firstprivate(array, left, p, node_id, nthreads) final(node_id >= nthreads)){
             ParallelQuicksortSingle(array, left, p - 1, node_id*2);
         }
         ParallelQuicksortSingle(array, p + 1, right, node_id*2+1);
     }
 }
+
+void ParallelQuicksortSingleHelper(float* original, float* copy, int left, int right, int node_id) {
+    int nthreads = omp_get_num_threads();
+    if ( left < right ) {
+
+        float p = PartitionArrayHelper(original, copy, left, right);
+        mpragma(omp task default(none) firstprivate(copy, left, p, node_id, nthreads) final(node_id >= nthreads)){
+            ParallelQuicksortSingle(copy, left, p - 1, node_id*2);
+        }
+        ParallelQuicksortSingle(copy, p + 1, right, node_id*2+1);
+    }
+}
+
 void QuickSort::RunParallelSingle() {
     auto excel = *this->file;
 
@@ -81,10 +122,9 @@ void QuickSort::RunParallelSingle() {
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
         {
-            std::memcpy(data, input_data, size * sizeof(float));
-            mpragma(omp parallel shared(data, size)) {
+            mpragma(omp parallel shared(output_data, input_data, size)) {
                 mpragma(omp single) {
-                    ParallelQuicksortSingle(data, 0, size-1, 1);
+                    ParallelQuicksortSingleHelper(input_data, output_data, 0, size-1, 1);
                 }
                 mpragma(omp taskwait)
             }
@@ -94,11 +134,20 @@ void QuickSort::RunParallelSingle() {
 //    std::cout << "\n\n=============\n\n";
 }
 
+
 void Quicksort(float *array, int left, int right){
     if ( left < right ) {
         float p = PartitionArray(array, left, right);
         Quicksort(array, left, p - 1); // Left branch
         Quicksort(array, p + 1, right); // Right branch
+    }
+}
+
+void QuicksortHelper(float *original, float *copy, int left, int right){
+    if ( left < right ) {
+        float p = PartitionArrayHelper(original, copy, left, right);
+        Quicksort(copy, left, p - 1); // Left branch
+        Quicksort(copy, p + 1, right); // Right branch
     }
 }
 
@@ -112,8 +161,7 @@ void QuickSort::RunSerial() {
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
         {
-            std::memcpy(data, input_data, size * sizeof(float));
-            Quicksort(data, 0, size-1);
+            QuicksortHelper(input_data, output_data, 0, size-1);
         }
    )
     // Print2DArray(&data, 1, size);
@@ -128,21 +176,21 @@ bool QuickSort::Validate() {
     rounds = 1;
     warmup = 0;
 
-    float* tmp = data;
+    float* tmp = output_data;
 
-    data = out_serial;
+    output_data = out_serial;
     RunSerial();
 
-    data = out_parallel_1;
+    output_data = out_parallel_1;
     RunParallelSingle();
 
-    data = out_parallel_2;
+    output_data = out_parallel_2;
     RunParallelDouble();
 
     bool is_valid = CompareArray(out_serial, out_parallel_1, size);
     is_valid &= CompareArray(out_serial, out_parallel_2, size);
 
-    data = tmp;
+    output_data = tmp;
     delete[] out_serial;
     delete[] out_parallel_1;
     delete[] out_parallel_2;
@@ -168,11 +216,11 @@ void QuickSort::Init(Logger::LoggerClass* file, const rapidjson::Value& properti
 void QuickSort::Reinitialize() {
     if(initialized) {
         delete[] input_data;
-        delete[] data;
+        delete[] output_data;
     }
 
     input_data = new float[size];
-    data = new float[size];
+    output_data = new float[size];
     FillRandomArray(input_data, size);
     this->initialized = true;
 }

@@ -17,7 +17,7 @@ class QuickSort : public Benchmark {
         virtual ~QuickSort() {
             if(initialized) {
                 delete[] input_data;
-                delete[] data;
+                delete[] output_data;
             }
         }
     private:
@@ -29,7 +29,7 @@ class QuickSort : public Benchmark {
         bool initialized = false;
         int size;
         float* input_data;  // random data
-        float* data;        // copy input data into new memory as quicksort is inplace
+        float* output_data;        // copy input data into new memory as quicksort is inplace
 };
 
 #endif
