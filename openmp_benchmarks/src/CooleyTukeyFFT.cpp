@@ -7,7 +7,7 @@
 //TODO add final clause benchmark
 
 #define PI 3.14159265358979323846
-using namespace std::complex_literals;
+//using namespace std::literals::complex_literals;
 
 void CTFFT(double* x, std::complex<double>* out, int N, int s){
     unsigned int k;
