@@ -14,6 +14,7 @@ class Linear : public Benchmark {
         void RunParallel_1();
         void RunParallel_2();
         void RunParallel_3();
+        void RunParallel_4();
         virtual bool Validate() override;
         virtual ~Linear() {
             if(initialized) {
@@ -28,7 +29,7 @@ class Linear : public Benchmark {
         int rounds;
         int warmup;
         bool initialized = false;
-        int size, static_size;
+        int size;
         float* input;
         float* output;
 };

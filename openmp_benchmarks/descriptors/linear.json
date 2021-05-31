@@ -3,9 +3,16 @@
         "name":"Linear",
         "properties": {
             "warmup": 5,
-            "rounds": 100000,
-            "size":100000,
-            "static_size": 10
+            "rounds": 1000000,
+            "size":10000
+        }
+    },
+    {
+        "name":"Linear",
+        "properties": {
+            "warmup": 5,
+            "rounds": 600000,
+            "size":100000
         }
     },
     {
@@ -13,26 +20,15 @@
         "properties": {
             "warmup": 5,
             "rounds": 300000,
-            "size":100000,
-            "static_size": 100
+            "size":1000000
         }
     },
     {
         "name":"Linear",
         "properties": {
             "warmup": 5,
-            "rounds": 300000,
-            "size":100000,
-            "static_size": 128
-        }
-    },
-    {
-        "name":"Linear",
-        "properties": {
-            "warmup": 5,
-            "rounds": 1000000,
-            "size":100000,
-            "static_size": 1000
+            "rounds": 500000,
+            "size":1000000
         }
     },
     {
@@ -40,46 +36,15 @@
         "properties": {
             "warmup": 5,
             "rounds": 1000000,
-            "size":100000,
-            "static_size": 1024
-        }
-    },
-
-    {
-        "name":"Linear",
-        "properties": {
-            "warmup": 5,
-            "rounds": 100000,
-            "size":1000000,
-            "static_size": 1000
-        }
-    },
-
-    {
-        "name":"Linear",
-        "properties": {
-            "warmup": 5,
-            "rounds": 100000,
-            "size":1000000,
-            "static_size": 1024
+            "size":100000
         }
     },
     {
         "name":"Linear",
         "properties": {
             "warmup": 5,
-            "rounds": 100000,
-            "size":1000000,
-            "static_size": 10000
-        }
-    },
-    {
-        "name":"Linear",
-        "properties": {
-            "warmup": 5,
-            "rounds": 100000,
-            "size":1000000,
-            "static_size": 100000
+            "rounds": 400000,
+            "size": 1000000
         }
     }
 ]
