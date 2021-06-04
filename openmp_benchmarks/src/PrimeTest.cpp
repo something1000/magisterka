@@ -3,23 +3,18 @@
 #include <omp.h>
 #include <cstring>
 #include <functional>
+#include <math.h>
 
 bool CheckPrime(int value) {
-    if (value <= 3) {
-        return value > 1;
-    }
+    if (value == 2)
+        return true;
 
-    if (value % 2 == 0 || value % 3 == 0) {
+    if (value == 1 || value % 2 == 0)
         return false;
-    }
 
-    int i = 5;
-    while (i * i <= value) {
-        if(value % i == 0 || value % (i + 2) == 0) {
-            return false;
-        }
-        i += 6;
-    };
+    for (int i = 3; i <= (int)sqrt((double)value); i++)
+        if (value % i == 0)
+                return false;
     return true;
 }
 
@@ -178,7 +173,7 @@ void PrimeTest::Reinitialize() {
     input = new int[size];
     output = new bool[size];
 
-    FillRandomArray(input, size, 0, 1000000);
+    FillRandomArray(input, size, 0, 10000000);
     this->initialized = true;
 }
 
