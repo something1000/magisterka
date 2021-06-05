@@ -3,7 +3,7 @@
         "name":"PrimeTest",
         "properties": {
             "warmup": 5,
-            "rounds": 60000,
+            "rounds": 120000,
             "size": 1000
         }
     },
@@ -11,7 +11,7 @@
         "name":"PrimeTest",
         "properties": {
             "warmup": 5,
-            "rounds": 20000,
+            "rounds": 40000,
             "size": 10000
         }
     },
@@ -19,7 +19,7 @@
         "name":"PrimeTest",
         "properties": {
             "warmup": 5,
-            "rounds": 3000,
+            "rounds": 6000,
             "size": 100000
         }
     },
@@ -27,7 +27,7 @@
         "name":"PrimeTest",
         "properties": {
             "warmup": 5,
-            "rounds": 300,
+            "rounds": 600,
             "size": 1000000
         }
     },
@@ -35,7 +35,7 @@
         "name":"PrimeTest",
         "properties": {
             "warmup": 5,
-            "rounds": 50,
+            "rounds": 70,
             "size": 10000000
         }
     }
