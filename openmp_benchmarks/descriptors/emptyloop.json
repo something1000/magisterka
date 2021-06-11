@@ -3,7 +3,7 @@
         "name":"EmptyForLoopBenchmark",
         "properties": {
             "warmup": 5,
-            "rounds": 1000000,
+            "rounds": 18000000,
             "iterations": 1000
         }
     },
@@ -11,7 +11,7 @@
         "name":"EmptyForLoopBenchmark",
         "properties": {
             "warmup": 5,
-            "rounds": 1000000,
+            "rounds": 2000000,
             "iterations": 10000
         }
     },
@@ -19,7 +19,7 @@
         "name":"EmptyForLoopBenchmark",
         "properties": {
             "warmup": 5,
-            "rounds": 100000,
+            "rounds": 1000000,
             "iterations": 100000
         }
     },
@@ -27,7 +27,7 @@
         "name":"EmptyForLoopBenchmark",
         "properties": {
             "warmup": 5,
-            "rounds": 10000,
+            "rounds": 200000,
             "iterations": 1000000
         }
     },
@@ -35,7 +35,7 @@
         "name":"EmptyForLoopBenchmark",
         "properties": {
             "warmup": 5,
-            "rounds": 1000,
+            "rounds": 20000,
             "iterations": 10000000
         }
     }

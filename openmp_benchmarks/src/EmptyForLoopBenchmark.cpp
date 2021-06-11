@@ -15,7 +15,7 @@ void EmptyForLoopBenchmark::RunParallel() {
         rounds,     // name of benchmark rounds variable
         ELAPSED,    // variable name to store execution time
         {
-            mpragma(omp parallel for)
+            mpragma(omp parallel for private(dummy))
             for(int i = 0; i < iterations; i++ )
             {
                 LOOP_UNOPTIMIZER(dummy);
