@@ -4,15 +4,7 @@
         "name":"Linear",
         "properties": {
             "warmup": 5,
-            "rounds": 10000,
-            "size":10000
-        }
-    },
-    {
-        "name":"Linear",
-        "properties": {
-            "warmup": 5,
-            "rounds": 10000,
+            "rounds": 100000,
             "size":100000
         }
     },
@@ -21,8 +13,16 @@
         "name":"Linear",
         "properties": {
             "warmup": 5,
-            "rounds": 2000,
+            "rounds": 20000,
             "size":1000000
+        }
+    },
+    {
+        "name":"Linear",
+        "properties": {
+            "warmup": 5,
+            "rounds": 100000,
+            "size":10000
         }
     }
 ]

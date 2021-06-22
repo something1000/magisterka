@@ -3,7 +3,7 @@
         "name":"WaveEquation",
         "properties": {
             "warmup": 5,
-            "rounds": 100,
+            "rounds": 1000,
             "N": 1000,
             "M": 1000,
             "K": 10
@@ -13,7 +13,7 @@
         "name":"WaveEquation",
         "properties": {
             "warmup": 5,
-            "rounds": 30,
+            "rounds": 300,
             "N": 1000,
             "M": 1000,
             "K": 100
